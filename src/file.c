@@ -596,5 +596,3 @@ storm_file_metatable (lua_State *L)
 
 	lua_pop (L, 1);
 }
-
-
