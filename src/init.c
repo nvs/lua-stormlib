@@ -17,7 +17,8 @@
  * The `mode` can be any of the following, and must match exactly:
  *
  * - `"r"`: Read mode (the default).
- * - `"r+"`: Write mode.
+ * - `"r+"`: Update mode.  Read and write functionality, preserving all
+ *   existing data.
  *
  * In case of success, this function returns a new `Storm MPQ` object.
  * Otherwise, it returns `nil`, a `string` describing the error, and a
