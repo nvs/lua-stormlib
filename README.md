@@ -58,6 +58,7 @@ iterators, which always raise.
 3. **TL;DR: Your mileage may vary.**  This library has only been tested on
    Linux (and even then, not very thorougly).  Please backup any files
    before use.
+4. Only zlib compression is supported.
 
 [LuaFileSystem]: https://github.com/keplerproject/luafilesystem
 
