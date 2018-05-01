@@ -1,3 +1,0 @@
-[submodule "compat-5.3"]
-	path = lib/compat-5.3
-	url = https://github.com/keplerproject/lua-compat-5.3
