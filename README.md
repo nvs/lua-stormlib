@@ -29,7 +29,7 @@ The easiest (and only supported) way to install **lua-stormlib** is to use
 [Luarocks].  From your command line run the following:
 
 ```
-luarocks install lua-stormlib
+luarocks install --server=http://luarocks.org/dev lua-stormlib
 ```
 
 [Luarocks]: https://luarocks.org
