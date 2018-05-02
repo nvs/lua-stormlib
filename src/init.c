@@ -9,7 +9,7 @@
 #include <lua.h>
 
 /**
- * `Storm.open (path [, mode])`
+ * `stormlib.open (path [, mode])`
  *
  * This function opens the MPQ archive specified by `path (string)`, with
  * the specified `mode (string)`.
