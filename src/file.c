@@ -561,17 +561,6 @@ error:
 static int
 file_setvbuf (lua_State *L)
 {
-	static const char *const
-	mode_options [] =
-	{
-		"no",
-		"full",
-		"line",
-		NULL
-	};
-
-	luaL_checkoption (L, 2, NULL, mode_options);
-
 	return storm_result (L, 1);
 }
 
