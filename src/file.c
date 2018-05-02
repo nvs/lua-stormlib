@@ -552,6 +552,43 @@ error:
 }
 
 /**
+ * `file:setvbuf ()`
+ *
+ * Returns `true`.  The buffering mode when writing cannot be altered.
+ *
+ * This function exists to maintain consistency with Lua's I/O library.
+ */
+static int
+file_setvbuf (lua_State *L)
+{
+	static const char *const
+	mode_options [] =
+	{
+		"no",
+		"full",
+		"line",
+		NULL
+	};
+
+	luaL_checkoption (L, 2, NULL, mode_options);
+
+	return storm_result (L, 1);
+}
+
+/**
+ * `file:flush ()`
+ *
+ * Returns `true`.  Data is automatically flushed to disk during write.
+ *
+ * This function exists to maintain consistency with Lua's I/O library.
+ */
+static int
+file_flush (lua_State *L)
+{
+	return storm_result (L, 1);
+}
+
+/**
  * `file:close ()`
  *
  * Returns a `boolean` indicating that the file was successfully closed.
@@ -622,6 +659,8 @@ file_methods [] =
 	{ "read", file_read },
 	{ "lines", file_lines },
 	{ "write", file_write },
+	{ "setvbuf", file_setvbuf },
+	{ "flush", file_flush },
 	{ "close", file_close },
 	{ "__tostring", file_to_string },
 	{ "__gc", file_close },
