@@ -38,9 +38,9 @@ luarocks install --server=http://luarocks.org/dev lua-stormlib
 ## Documentation
 
 For details regarding functionality, please consult the source files of this
-library (or see the [Examples](#examples) section).  It should be noted
-that an attempt has been made to adhere to the inferface provide by Lua's
-[I/O] library.
+library.  It should be noted that an attempt has been made to adhere to the
+inferface provide by Lua's [I/O] library.  For references of how to use
+**lua-stormlib**, see the [Examples](#examples) section.
 
 For the majority of the functions, if an error is encountered, `nil` will be
 returned, along with a `string` describing the error, and a `number`
@@ -137,11 +137,13 @@ do
 
     file:close ()
 
-    -- The size must be explicitly stated for write enabled files.  Write
-    -- mode is a cross between write and append modes, in that existing
-    -- files are truncated, but writing can only occur at the end of the
-    -- file.  Also note that if the archive is full, an attempt to
-    -- automatically increase the limit will be made.
+    -- Write mode has a few caveats:
+    --
+    -- 1. The size must be explicitly stated.  The total amount of written
+    --    data must equal this value.
+    -- 2. The mode is more of a mix of write and append modes.  Existing
+    --    files are truncated, but subsequent writes are forced to the then
+    --    current end of file, regardless of calls to `file:seek ()`.
     local file = mpq:open ('file.txt', 'w', 1024)
 
     -- Writing more than the stated size will error, and the file will not
