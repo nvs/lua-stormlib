@@ -253,8 +253,9 @@ mpq_open (lua_State *L)
 	}
 
 	file = storm_file_initialize (L);
+	file->is_writable = *mode == 'w';
 
-	if (*mode == 'w')
+	if (file->is_writable)
 	{
 		DWORD size = (DWORD) luaL_checkinteger (L, 4);
 
