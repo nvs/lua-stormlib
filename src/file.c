@@ -62,7 +62,8 @@ file_size (lua_State *L)
  *
  * - `"set"`: Base is position `0` (i.e. the beginning of the file).
  * - `"cur"`: Base is the current position.
- * - `"end"`: Base is the end of the file.
+ * - `"end"`: Base is the end of the file.  For writable files, this is the
+ *   last written position (not the absolute file size).
  *
  * In case of success, this function returns the final file position,
  * measured in bytes from the beginning of the file.  Otherwise, it returns
@@ -97,17 +98,59 @@ file_seek (lua_State *L)
 	int option = luaL_checkoption (L, 2, "cur", mode_options);
 	LONG offset = (LONG) luaL_optinteger (L, 3, 0);
 
-	DWORD position = SFileSetFilePointer (
-		file->handle, offset, NULL, modes [option]);
+	int mode = modes [option];
+	DWORD position;
+
+	/*
+	 * For write enabled files, StormLib will return the the file size when
+	 * `FILE_END` is used.  However, we want to consider the last position
+	 * written to be the end of the file.
+	 */
+	if (file->is_writable && mode == FILE_END)
+	{
+		position = SFileSetFilePointer
+			(file->handle, file->write_position, NULL, FILE_BEGIN);
+
+		if (position == SFILE_INVALID_POS)
+		{
+			goto error;
+		}
+
+		/* A positive offset takes up beyond the last position written. */
+		if (offset > 0)
+		{
+			offset = 0;
+		}
+
+		/* We are at the 'end' of the file now. */
+		mode = FILE_CURRENT;
+	}
+
+	position = SFileSetFilePointer (file->handle, offset, NULL, mode);
 
 	if (position == SFILE_INVALID_POS)
 	{
-		return storm_result (L, 0);
+		goto error;
+	}
+
+	/* Never go beyond the last position written. */
+	if (file->is_writable && position > file->write_position)
+	{
+		position = SFileSetFilePointer (
+			file->handle, file->write_position, NULL, FILE_BEGIN);
+
+		if (position == SFILE_INVALID_POS)
+		{
+			goto error;
+		}
 	}
 
 	lua_pushinteger (L, (lua_Integer) position);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 static int
