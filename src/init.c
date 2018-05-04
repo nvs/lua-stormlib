@@ -11,8 +11,8 @@
 /**
  * `stormlib.open (path [, mode])`
  *
- * This function opens the MPQ archive specified by `path (string)`, with
- * the specified `mode (string)`.
+ * This function opens the MPQ archive specified by `path` (`string`), with
+ * the specified `mode` (`string`).
  *
  * The `mode` can be any of the following, and must match exactly:
  *

@@ -68,8 +68,8 @@ error:
  * `file:seek ([whence [, offset]])`
  *
  * Sets and gets the file position, measured from the beginning of the file,
- * to the position given by `offset (number)` plus a base specified by
- * `whence (string)`, as follows:
+ * to the position given by `offset` (`number`) plus a base specified by
+ * `whence` (`string`), as follows:
  *
  * - `"set"`: Base is position `0` (i.e. the beginning of the file).
  * - `"cur"`: Base is the current position.

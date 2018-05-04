@@ -174,7 +174,7 @@ error:
  * `mpq:has (name)`
  *
  * Returns a `boolean` indicating whether the `mpq` archive contains the
- * file specified by `name (string)`.
+ * file specified by `name` (`string`).
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -247,7 +247,7 @@ mpq_list_iterator (lua_State *L)
  * `mpq:list ([mask])`
  *
  * Returns an iterator `function` that, each time it is called, returns the
- * next file name (a `string`) that matches `mask (string)`.  The default
+ * next file name (`string`) that matches `mask` (`string`).  The default
  * `mask` value is `"*"`, which will return all files.
  *
  * A `mask` supports two control charcters, neither of which can be escaped:
@@ -291,9 +291,9 @@ error:
 /**
  * `mpq:open (name [, mode [, size]])`
  *
- * This function opens the file specified by `name (string)` within the the
- * `mpq` archive, with the specified `mode (string)`, and returns a `Storm
- * File` object.
+ * This function opens the file specified by `name` (`string`) within the
+ * `mpq` archive, with the specified `mode` (`string`), and returns a new
+ * Storm File object.
  *
  * The `mode` can be any of the following, and must match exactly:
  *
@@ -301,7 +301,7 @@ error:
  * - `"w"`: Write mode.  Truncates existing files.  Writes behave like
  *   append mode, in that they are forced to the then current end of file.
  *
- * If `mode` is `"w"`, then an additional `size (number)` argument must be
+ * If `mode` is `"w"`, then an additional `size` (`number`) argument must be
  * provided, representing the size of the file.  The subsequent amount of
  * data written must equal this value.
  *
@@ -368,9 +368,9 @@ error:
 /**
  * `mpq:add (path [, name])`
  *
- * Returns a `boolean` indicating that the file specified by `path (string)`
- * was successfully added to the `mpq` archive as `name (string)`.  The
- * default value for `name` is `path`.
+ * Returns a `boolean` indicating that the file specified by `path`
+ * (`string`) was successfully added to the `mpq` archive as `name`
+ * (`string`).  The default value for `name` is `path`.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -403,7 +403,8 @@ mpq_add (lua_State *L)
 		goto out;
 	}
 
-	/* The count may be off by one unless we explicitly flush.  On the plus
+	/*
+	 * The count may be off by one unless we explicitly flush.  On the plus
 	 * side, this makes it more difficult to corrupt the archive on error.
 	 */
 	if (!SFileFlushArchive (mpq->handle))
@@ -420,9 +421,9 @@ out:
 /**
  * `mpq:extract (name, path)`
  *
- * Returns a `boolean` indicating that the file specified by `name (string)`
- * was successfully extracted from the `mpq` archive to `path (string)`.
- * Note that this function will not create directory paths.
+ * Returns a `boolean` indicating that the file specified by `name`
+ * (`string`) was successfully extracted from the `mpq` archive to `path`
+ * (`string`).  Note that this function will not create directory paths.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -450,8 +451,8 @@ out:
 /**
  * `mpq:remove (name)`
  *
- * Returns a `boolean` indicating the the file specified by `name (string)`
- * was successfully removed from the `mpq` archive.
+ * Returns a `boolean` indicating the the file specified by `name`
+ * (`string`) was successfully removed from the `mpq` archive.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -478,8 +479,9 @@ out:
 /**
  * `mpq:rename (old, new)`
  *
- * Returns a `boolean` indicating that the file specified  by `old (string)`
- * with the `mpq` archive was successfully renamed to `new (string)`.
+ * Returns a `boolean` indicating that the file specified  by `old`
+ * (`string`) within the `mpq` archive was successfully renamed to `new`
+ * (`string`).
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
