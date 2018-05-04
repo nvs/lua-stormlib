@@ -90,11 +90,13 @@ finder_methods [] =
 extern void
 storm_finder_metatable (lua_State *L)
 {
-	luaL_newmetatable (L, STORM_FINDER_METATABLE);
-	luaL_setfuncs (L, finder_methods, 0);
+	if (luaL_newmetatable (L, STORM_FINDER_METATABLE))
+	{
+		luaL_setfuncs (L, finder_methods, 0);
 
-	lua_pushvalue (L, -1);
-	lua_setfield (L, -2, "__index");
+		lua_pushvalue (L, -1);
+		lua_setfield (L, -2, "__index");
+	}
 
 	lua_pop (L, 1);
 }

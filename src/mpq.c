@@ -607,11 +607,13 @@ mpq_methods [] =
 extern void
 storm_mpq_metatable (lua_State *L)
 {
-	luaL_newmetatable (L, STORM_MPQ_METATABLE);
-	luaL_setfuncs (L, mpq_methods, 0);
+	if (luaL_newmetatable (L, STORM_MPQ_METATABLE))
+	{
+		luaL_setfuncs (L, mpq_methods, 0);
 
-	lua_pushvalue (L, -1);
-	lua_setfield (L, -2, "__index");
+		lua_pushvalue (L, -1);
+		lua_setfield (L, -2, "__index");
+	}
 
 	lua_pop (L, 1);
 }
