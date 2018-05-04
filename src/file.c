@@ -117,7 +117,7 @@ file_seek (lua_State *L)
 	}
 
 	/*
-	 * For write enabled files, StormLib will return the the file size when
+	 * For write enabled files, StormLib will return the file size when
 	 * `FILE_END` is used.  However, we want to consider the last position
 	 * written to be the end of the file.
 	 */
@@ -131,7 +131,7 @@ file_seek (lua_State *L)
 			goto error;
 		}
 
-		/* A positive offset takes up beyond the last position written. */
+		/* A positive offset takes us beyond the last position written. */
 		if (offset > 0)
 		{
 			offset = 0;
