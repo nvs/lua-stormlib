@@ -470,6 +470,10 @@ error:
 	return 0;
 }
 
+/*
+ * This plus the number of upvalues used must be less than the maximum
+ * number of upvalues to a C function (i.e. `255`).
+ */
 #define LINES_MAXIMUM_ARGUMENTS 250
 
 /**
@@ -498,7 +502,7 @@ file_lines (lua_State *L)
 	arguments = lua_gettop (L) - 1;
 
 	luaL_argcheck (L, arguments <= LINES_MAXIMUM_ARGUMENTS,
-		LINES_MAXIMUM_ARGUMENTS + 2, "too many arguments");
+		LINES_MAXIMUM_ARGUMENTS + 1, "too many arguments");
 
 	lua_pushinteger (L, arguments);
 	lua_insert (L, 2);
