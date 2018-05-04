@@ -23,6 +23,7 @@ build = {
 				'src/init.c',
 				'src/common.c',
 				'src/file.c',
+				'src/files.c',
 				'src/finder.c',
 				'src/mpq.c',
 				'lib/compat-5.3/c-api/compat-5.3.c'

@@ -1,6 +1,7 @@
 #include "mpq.h"
 #include "common.h"
 #include "file.h"
+#include "files.h"
 #include "finder.h"
 #include <StormLib.h>
 #include <StormPort.h>
@@ -10,54 +11,6 @@
 #include <string.h>
 
 #define STORM_MPQ_METATABLE "Storm MPQ"
-#define STORM_MPQ_FILES "Storm MPQ Files"
-
-static void
-mpq_files_initialize (lua_State *L, const struct Storm_MPQ *mpq)
-{
-	lua_newtable (L);
-
-	if (luaL_newmetatable (L, STORM_MPQ_FILES))
-	{
-		lua_pushliteral (L, "v");
-		lua_setfield (L, -2, "__mode");
-	}
-
-	lua_setmetatable (L, -2);
-	lua_rawsetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-}
-
-static void
-mpq_files_insert (lua_State *L,
-	const struct Storm_MPQ *mpq, const struct Storm_File *file)
-{
-	lua_rawgetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-	lua_pushvalue (L, -2);
-	lua_rawsetp (L, -2, (void *) file);
-	lua_pop (L, 1);
-}
-
-static void
-mpq_files_close (lua_State *L, const struct Storm_MPQ *mpq)
-{
-	lua_rawgetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-
-	lua_pushnil (L);
-
-	while (lua_next (L, -2))
-	{
-		lua_getmetatable (L, -1);
-		lua_getfield (L, -1, "close");
-		lua_remove (L, -2);
-		lua_insert (L, -2);
-		lua_call (L, 1, 0);
-	}
-
-	lua_pop (L, 1);
-
-	lua_pushnil (L);
-	lua_rawsetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-}
 
 extern struct Storm_MPQ
 *storm_mpq_initialize (lua_State *L)
@@ -66,7 +19,7 @@ extern struct Storm_MPQ
 	mpq->handle = NULL;
 
 	luaL_setmetatable (L, STORM_MPQ_METATABLE);
-	mpq_files_initialize (L, mpq);
+	storm_files_initialize (L, mpq);
 
 	return mpq;
 }
@@ -358,7 +311,7 @@ mpq_open (lua_State *L)
 		}
 	}
 
-	mpq_files_insert (L, mpq, file);
+	storm_files_insert (L, mpq, file);
 	return 1;
 
 error:
@@ -588,7 +541,7 @@ mpq_close (lua_State *L)
 	}
 	else
 	{
-		mpq_files_close (L, mpq);
+		storm_files_close (L, mpq);
 		status = SFileCloseArchive (mpq->handle);
 		mpq->handle = NULL;
 	}
