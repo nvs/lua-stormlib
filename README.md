@@ -115,6 +115,9 @@ mpq:rename ('file.txt', 'other-file.txt')
 -- Rebuilds the archive, attempting to save space.
 mpq:compact ()
 
+-- Flush in-memory data to disk.
+mpq:flush ()
+
 do
     -- Read-only by default.  Only modes 'r' and 'w' are supported.
     local file = mpq:open ('file.txt')
@@ -136,6 +139,9 @@ do
 
     for line in file:lines () do
     end
+
+    -- Flush in-memory data to disk.
+    file:flush ()
 
     file:close ()
 

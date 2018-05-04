@@ -14,6 +14,7 @@ extern struct Storm_File
 {
 	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
 	file->handle = NULL;
+	file->archive = NULL;
 	file->is_writable = 0;
 	file->write_position = 0;
 
@@ -607,22 +608,35 @@ file_setvbuf (lua_State *L)
 /**
  * `file:flush ()`
  *
- * Returns `true`.  Data is automatically flushed to disk during write.
+ * Returns a `boolean` indicating that in-memory structures were
+ * successfully saved to the `mpq` archive on disk.
  *
- * This function exists to maintain consistency with Lua's I/O library.
+ * Due to performance reasons, StormLib caches several structures in memory.
+ * When a file is added to the MPQ, those structures are only updated in
+ * memory.  Calling `file:flush ()` forces saving in-memory data, helping
+ * prevent archive corruption.
+ *
+ * Note that this function flushes the entire archive (the same as
+ * `mpq:flush ()`), not just the individual file.
+ *
+ * In case of error, returns `nil`, a `string` describing the error, and
+ * a `number` indicating the error code.
  */
 static int
 file_flush (lua_State *L)
 {
 	struct Storm_File *file = storm_file_access (L, 1);
-	int status = 1;
+	int status = 0;
 
-	if (!file->handle)
+	if (!file->handle || !file->archive)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		status = 0;
+		goto out;
 	}
 
+	status = SFileFlushArchive (file->archive);
+
+out:
 	return storm_result (L, status);
 }
 
@@ -661,6 +675,7 @@ file_close (lua_State *L)
 	}
 
 	file->handle = NULL;
+	file->archive = NULL;
 
 	return storm_result (L, status);
 }

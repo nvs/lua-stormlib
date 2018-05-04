@@ -331,6 +331,7 @@ mpq_open (lua_State *L)
 	}
 
 	file = storm_file_initialize (L);
+	file->archive = mpq->handle;
 	file->is_writable = *mode == 'w';
 
 	if (file->is_writable)
@@ -532,6 +533,38 @@ out:
 }
 
 /**
+ * `mpq:flush ()`
+ *
+ * Returns a `boolean` indicating that in-memory structures were
+ * successfully saved to the `mpq` archive on disk.
+ *
+ * Due to performance reasons, StormLib caches several structures in memory.
+ * When a file is added to the MPQ, those structures are only updated in
+ * memory.  Calling `mpq:flush ()` forces saving in-memory data, helping
+ * prevent archive corruption.
+ *
+ * In case of error, returns `nil`, a `string` describing the error, and
+ * a `number` indicating the error code.
+ */
+static int
+mpq_flush (lua_State *L)
+{
+	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
+	int status = 0;
+
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
+
+	status = SFileFlushArchive (mpq->handle);
+
+out:
+	return storm_result (L, status);
+}
+
+/**
  * `mpq:close ()`
  *
  * Returns a `boolean` indicating that the `mpq` archive, along with any of
@@ -599,6 +632,7 @@ mpq_methods [] =
 	{ "rename", mpq_rename },
 	{ "remove", mpq_remove },
 	{ "compact", mpq_compact },
+	{ "flush", mpq_flush },
 	{ "close", mpq_close },
 	{ "__tostring", mpq_to_string },
 	{ "__gc", mpq_close },
