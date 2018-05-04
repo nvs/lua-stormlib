@@ -8,6 +8,7 @@ struct Storm_File
 {
 	HANDLE handle;
 	HANDLE archive;
+	int buffering;
 	int is_writable;
 	DWORD write_position;
 };

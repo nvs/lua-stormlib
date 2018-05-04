@@ -15,6 +15,7 @@ extern struct Storm_File
 	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
 	file->handle = NULL;
 	file->archive = NULL;
+	file->buffering = 0;
 	file->is_writable = 0;
 	file->write_position = 0;
 
@@ -534,7 +535,7 @@ file_write (lua_State *L)
 	int index = 1;
 	int arguments = lua_gettop (L) - index++;
 
-	if (!file->handle)
+	if (!file->handle || !file->archive)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
 		goto error;
@@ -563,6 +564,10 @@ file_write (lua_State *L)
 			goto error;
 		}
 
+		if (!file->buffering && !SFileFlushArchive (file->archive))
+		{
+			goto error;
+		}
 	}
 
 	file->write_position = SFileSetFilePointer (
@@ -581,24 +586,46 @@ error:
 }
 
 /**
- * `file:setvbuf ()`
+ * `file:setvbuf (mode)`
  *
- * Returns `true`.  The buffering mode when writing cannot be altered.
+ * Returns a `boolean` indicating whether the buffering `mode` (`string`)
+ * was successfully set.  There are two available modes:
  *
- * This function exists to maintain consistency with Lua's I/O library.
+ * - `"no"`: No buffering (the default); the result of any output operation
+ *   appears immediately.
+ * - `"full"`: Full buffering; output operation is performed only when the
+ *   buffer is full or when `file:flush ()` is explicitly called.
+ *
+ * Using full buffering can yield a performance improvement at the cost of
+ * an increased risk of archive corruption.  Use at your own discretion.
+ *
+ * In case of error, returns `nil`, a `string` describing the error, and
+ * a `number` indicating the error code.
  */
 static int
 file_setvbuf (lua_State *L)
 {
+	static const char *const
+	mode_options [] = {
+		"no",
+		"full",
+		NULL
+	};
+
 	struct Storm_File *file = storm_file_access (L, 1);
-	int status = 1;
+	int option = luaL_checkoption (L, 2, NULL, mode_options);
+	int status = 0;
 
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		status = 0;
+		goto out;
 	}
 
+	file->buffering = option;
+	status = 1;
+
+out:
 	return storm_result (L, status);
 }
 

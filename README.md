@@ -154,6 +154,13 @@ do
     --    current end of file, regardless of calls to `file:seek ()`.
     local file = mpq:open ('file.txt', 'w', 1024)
 
+    -- No buffering is the default, and safest.
+    file:setvbuf ('no')
+
+    -- Full buffering offers the best performance, at a higher risk of
+    -- corrupting the archive if the executing program exits unexpectedly.
+    file:setvbuf ('full')
+
     -- Writing more than the stated size will error, and the file will not
     -- be finalized.
     file:write ('text', 'more text', 5, 'and more')
