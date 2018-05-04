@@ -535,7 +535,8 @@ out:
  * `mpq:close ()`
  *
  * Returns a `boolean` indicating that the `mpq` archive, along with any of
- * its open files, was successfully closed.
+ * its open files, was successfully closed.  Note that archives are
+ * automatically closed when their handles are garbage collected.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.

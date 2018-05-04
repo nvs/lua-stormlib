@@ -630,6 +630,8 @@ file_flush (lua_State *L)
  * `file:close ()`
  *
  * Returns a `boolean` indicating that the file was successfully closed.
+ * Note that files are automatically closed when their handles are garbage
+ * collected or when the archive they belong to is closed.
  *
  * For files opened with write mode this function flushes any data that
  * remains after previous calls of `file:write ()`.  If the amount of data
