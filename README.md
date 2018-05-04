@@ -39,8 +39,8 @@ luarocks install --server=http://luarocks.org/dev lua-stormlib
 
 For details regarding functionality, please consult the source files of this
 library.  It should be noted that an attempt has been made to adhere to the
-inferface provide by Lua's [I/O] library.  For references of how to use
-**lua-stormlib**, see the [Examples](#examples) section.
+inferface provide by Lua's [I/O] library.  For basic references of how to
+use **lua-stormlib**, see the [Examples](#examples) section.
 
 For the majority of the functions, if an error is encountered, `nil` will be
 returned, along with a `string` describing the error, and a `number`
@@ -49,16 +49,23 @@ iterators, which always raise.
 
 ### Caveats
 
-1. Neither StormLib or this library attempt to create directories.  If that
-   functionality is required, one should seek an alternative method (e.g.
-   [LuaFileSystem]).
-2. StormLib considers forward slashes and backslashes to be distinct.  As
-   such, care should be taken when naming or referencing files within the
-   archive.
-3. **TL;DR: Your mileage may vary.**  This library has only been tested on
+This is a list of known limitations of **lua-stormlib**.  Some of these may
+be addressed over time.
+
+1. **TL;DR: Your mileage may vary.**  This library has only been tested on
    Linux (and even then, not very thorougly).  Please backup any files
    before use.
-4. Only zlib compression is supported.
+2. In situations where the archive is not closed and the Lua state is left
+   open (e.g. with `os.exit ()`), corruption of the archive has been
+   observed.  This primarily applies to files opened in `w` mode that have
+   buffering enabled.
+3. Neither StormLib nor this library attempt to create directories.  If that
+   functionality is required, one should seek a supplemental method (e.g.
+   [LuaFileSystem]).
+4. StormLib considers forward slashes and backslashes to be distinct.  As
+   such, care should be taken when naming or referencing files within the
+   archive.
+5. Only zlib compression is supported at this time.
 
 [LuaFileSystem]: https://github.com/keplerproject/luafilesystem
 
@@ -112,7 +119,9 @@ mpq:extract ('file.txt', 'path/to/a/file.txt')
 mpq:remove ('file.txt')
 mpq:rename ('file.txt', 'other-file.txt')
 
--- Rebuilds the archive, attempting to save space.
+-- Rebuilds the archive, attempting to save space.  Removed, renamed, and
+-- replaced files will remain in the archive until it is compacted.  Note
+-- that this has the potential to be a costly operation on some archives.
 mpq:compact ()
 
 -- Flush in-memory data to disk.
@@ -140,7 +149,8 @@ do
     for line in file:lines () do
     end
 
-    -- Flush in-memory data to disk.
+    -- Flush in-memory data to disk.  Note that this operates on the whole
+    -- archive, and not only this individual file.
     file:flush ()
 
     file:close ()
@@ -161,8 +171,7 @@ do
     -- corrupting the archive if the executing program exits unexpectedly.
     file:setvbuf ('full')
 
-    -- Writing more than the stated size will error, and the file will not
-    -- be finalized.
+    -- Writing more than the stated size will error.
     file:write ('text', 'more text', 5, 'and more')
 
     -- The total amount of written data must equal the size stated on
@@ -170,5 +179,7 @@ do
     file:close ()
 end
 
-mpq:close ()
+-- The archive, as well as any open files, will be garbage collected and
+-- closed eventually.
+--mpq:close ()
 ```
