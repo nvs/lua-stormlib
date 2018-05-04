@@ -70,6 +70,8 @@ local stormlib = require ('stormlib')
 -- Read-only by default.  Only modes 'r' and 'r+' are supported.
 local mpq = stormlib.open ('example.w3x')
 print (mpq)
+
+-- This will close the archive, as well as any of its open files.
 mpq:close ()
 
 local mpq = stormlib.open ('example.w3x', 'r')
