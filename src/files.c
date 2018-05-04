@@ -23,11 +23,13 @@ storm_files_initialize (lua_State *L, const struct Storm_MPQ *mpq)
 }
 
 extern void
-storm_files_insert (lua_State *L, const struct Storm_MPQ *mpq,
-	const struct Storm_File *file)
+storm_files_insert (lua_State *L, const struct Storm_MPQ *mpq, int index)
 {
+	const struct Storm_File *file = storm_file_access (L, index);
+
+	lua_pushvalue (L, index);
 	lua_rawgetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-	lua_pushvalue (L, -2);
+	lua_insert (L, -2);
 	lua_rawsetp (L, -2, (void *) file);
 	lua_pop (L, 1);
 }

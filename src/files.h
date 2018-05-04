@@ -9,8 +9,7 @@ extern void
 storm_files_initialize (lua_State *L, const struct Storm_MPQ *mpq);
 
 extern void
-storm_files_insert (lua_State *L, const struct Storm_MPQ *mpq,
-	const struct Storm_File *file);
+storm_files_insert (lua_State *L, const struct Storm_MPQ *mpq, int index);
 
 extern void
 storm_files_close (lua_State *L, const struct Storm_MPQ *mpq);

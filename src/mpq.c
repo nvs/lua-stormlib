@@ -293,7 +293,7 @@ mpq_open (lua_State *L)
 		}
 	}
 
-	storm_files_insert (L, mpq, file);
+	storm_files_insert (L, mpq, -1);
 	return 1;
 
 error:
