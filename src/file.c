@@ -60,7 +60,7 @@ error:
  * `nil`, a `string` describing the error, and a `number` indicating the
  * error code.
  *
- * * The default value for `whence` is `"cur"`, and for offset is `0`.
+ * The default value for `whence` is `"cur"`, and for offset is `0`.
  * Therefore, the call `file:seek ()` returns the current file position,
  * without changing it; the call `file:seek ('set')` sets the position to
  * the beginning of the file (and returns `0`); and the call `file:seek
