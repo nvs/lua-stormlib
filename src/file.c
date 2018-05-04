@@ -533,7 +533,6 @@ file_write (lua_State *L)
 
 	int index = 1;
 	int arguments = lua_gettop (L) - index++;
-	int status = 0;
 
 	if (!file->handle)
 	{
@@ -558,10 +557,8 @@ file_write (lua_State *L)
 		size_t size;
 		const char *text = luaL_checklstring (L, index, &size);
 
-		status = SFileWriteFile (file->handle,
-			text, (DWORD) size, MPQ_COMPRESSION_ZLIB);
-
-		if (!status)
+		if (!SFileWriteFile (file->handle,
+			text, (DWORD) size, MPQ_COMPRESSION_ZLIB))
 		{
 			goto error;
 		}
