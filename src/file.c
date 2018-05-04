@@ -189,7 +189,7 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 
 	luaL_pushresult (&line);
 
-	return status || lua_rawlen (L, -1) > 0;
+	return status;
 }
 
 static int
@@ -223,7 +223,7 @@ file_read_characters (lua_State *L,
 
 	luaL_pushresult (&characters);
 
-	return status || bytes_read > 0;
+	return status;
 }
 
 /**
@@ -308,13 +308,12 @@ file_read (lua_State *L)
 
 			if (position == SFILE_INVALID_POS)
 			{
-				status = 0;
 				goto error;
 			}
 
 			if (position >= size)
 			{
-				lua_pushnil (L);
+				SetLastError (ERROR_HANDLE_EOF);
 				status = 0;
 			}
 			else
@@ -350,7 +349,6 @@ file_read (lua_State *L)
 			case 'a':
 			{
 				file_read_characters (L, file, (size_t) size);
-				status = 1;
 				break;
 			}
 
@@ -364,8 +362,16 @@ file_read (lua_State *L)
 
 	if (!status)
 	{
-		lua_pop (L, 1);
-		lua_pushnil (L);
+		if (GetLastError () != ERROR_HANDLE_EOF)
+		{
+			goto error;
+		}
+
+		if (lua_rawlen (L, -1) == 0)
+		{
+			lua_pop (L, 1);
+			lua_pushnil (L);
+		}
 	}
 
 	return index - 2;
