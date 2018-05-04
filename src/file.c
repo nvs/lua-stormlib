@@ -13,7 +13,6 @@ extern struct Storm_File
 *storm_file_initialize (lua_State *L)
 {
 	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
-
 	file->handle = NULL;
 	file->is_writable = 0;
 	file->write_position = 0;
@@ -57,7 +56,6 @@ file_size (lua_State *L)
 	}
 
 	lua_pushinteger (L, (lua_Integer) size);
-
 	return 1;
 
 error:
@@ -163,7 +161,6 @@ file_seek (lua_State *L)
 	}
 
 	lua_pushinteger (L, (lua_Integer) position);
-
 	return 1;
 
 error:
@@ -508,7 +505,6 @@ file_lines (lua_State *L)
 	lua_insert (L, 2);
 
 	lua_pushcclosure (L, lines_iterator, 2 + arguments);
-
 	return 1;
 
 error:
@@ -689,7 +685,6 @@ file_to_string (lua_State *L)
 	}
 
 	lua_pushfstring (L, text, STORM_FILE_METATABLE, file);
-
 	return 1;
 }
 

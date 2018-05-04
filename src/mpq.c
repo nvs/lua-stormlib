@@ -32,10 +32,8 @@ mpq_files_insert (lua_State *L,
 	const struct Storm_MPQ *mpq, const struct Storm_File *file)
 {
 	lua_rawgetp (L, LUA_REGISTRYINDEX, (void *) mpq);
-
 	lua_pushvalue (L, -2);
 	lua_rawsetp (L, -2, (void *) file);
-
 	lua_pop (L, 1);
 }
 
@@ -65,11 +63,9 @@ extern struct Storm_MPQ
 *storm_mpq_initialize (lua_State *L)
 {
 	struct Storm_MPQ *mpq = lua_newuserdata (L, sizeof (*mpq));
-
 	mpq->handle = NULL;
 
 	luaL_setmetatable (L, STORM_MPQ_METATABLE);
-
 	mpq_files_initialize (L, mpq);
 
 	return mpq;
@@ -119,7 +115,6 @@ static int
 mpq_count (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-
 	DWORD count;
 
 	if (!mpq->handle)
@@ -135,7 +130,6 @@ mpq_count (lua_State *L)
 	}
 
 	lua_pushinteger (L, (lua_Integer) count);
-
 	return 1;
 
 error:
@@ -155,7 +149,6 @@ static int
 mpq_limit (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-
 	DWORD limit;
 
 	if (!mpq->handle)
@@ -171,7 +164,6 @@ mpq_limit (lua_State *L)
 	}
 
 	lua_pushinteger (L, (lua_Integer) limit);
-
 	return 1;
 
 error:
@@ -290,7 +282,6 @@ mpq_list (lua_State *L)
 	lua_insert (L, 1);
 
 	lua_pushcclosure (L, mpq_list_iterator, 3);
-
 	return 1;
 
 error:
@@ -367,7 +358,6 @@ mpq_open (lua_State *L)
 	}
 
 	mpq_files_insert (L, mpq, file);
-
 	return 1;
 
 error:
@@ -592,7 +582,6 @@ mpq_to_string (lua_State *L)
 	}
 
 	lua_pushfstring (L, text, STORM_MPQ_METATABLE, mpq);
-
 	return 1;
 }
 

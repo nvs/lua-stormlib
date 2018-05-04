@@ -12,7 +12,6 @@ extern struct Storm_Finder
 *storm_finder_initialize (lua_State *L)
 {
 	struct Storm_Finder *finder = lua_newuserdata (L, sizeof (*finder));
-
 	finder->handle = NULL;
 
 	luaL_setmetatable (L, STORM_FINDER_METATABLE);
