@@ -23,7 +23,7 @@ mpq_files_initialize (lua_State *L, const struct Storm_MPQ *mpq)
 		lua_setfield (L, -2, "__mode");
 	}
 
-	lua_setmetatable (L, -1);
+	lua_setmetatable (L, -2);
 	lua_rawsetp (L, LUA_REGISTRYINDEX, (void *) mpq);
 }
 
