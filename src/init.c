@@ -47,11 +47,14 @@ storm_open (lua_State *L)
 
 	mpq = storm_mpq_initialize (L);
 
-	if (SFileOpenArchive (path, 0, flags, &mpq->handle))
+	if (!SFileOpenArchive (path, 0, flags, &mpq->handle))
 	{
-		return 1;
+		goto error;
 	}
 
+	return 1;
+
+error:
 	return storm_result (L, 0);
 }
 

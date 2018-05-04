@@ -41,16 +41,27 @@ static int
 file_size (lua_State *L)
 {
 	struct Storm_File *file = storm_file_access (L, 1);
-	DWORD size = SFileGetFileSize (file->handle, NULL);
+	DWORD size;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
+
+	size = SFileGetFileSize (file->handle, NULL);
 
 	if (size == SFILE_INVALID_SIZE)
 	{
-		return storm_result (L, 0);
+		goto error;
 	}
 
 	lua_pushinteger (L, (lua_Integer) size);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 /**
@@ -100,6 +111,12 @@ file_seek (lua_State *L)
 
 	int mode = modes [option];
 	DWORD position;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
 
 	/*
 	 * For write enabled files, StormLib will return the the file size when
@@ -266,12 +283,17 @@ file_read (lua_State *L)
 	int index;
 	int arguments;
 
-	int status = 1;
+	int status = 0;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
 
 	if (file->is_writable)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		status = 0;
 		goto error;
 	}
 
@@ -279,7 +301,6 @@ file_read (lua_State *L)
 
 	if (size == SFILE_INVALID_SIZE)
 	{
-		status = 0;
 		goto error;
 	}
 
@@ -295,6 +316,8 @@ file_read (lua_State *L)
 
 	/* Ensure stack space for all results and the buffer. */
 	luaL_checkstack (L, arguments + LUA_MINSTACK, "too many arguments");
+
+	status = 1;
 
 	for (; arguments-- && status; index++)
 	{
@@ -389,8 +412,6 @@ lines_iterator (lua_State *L)
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-
-		results = storm_result (L, 0);
 		goto error;
 	}
 
@@ -398,7 +419,6 @@ lines_iterator (lua_State *L)
 
 	if (size == SFILE_INVALID_SIZE)
 	{
-		results = storm_result (L, 0);
 		goto error;
 	}
 
@@ -406,13 +426,13 @@ lines_iterator (lua_State *L)
 
 	if (position == SFILE_INVALID_POS)
 	{
-		results = storm_result (L, 0);
 		goto error;
 	}
 
+	/* EOF?  Returning `false` is the same as `nil` in this case. */
 	if (position >= size)
 	{
-		results = 0;
+		SetLastError (ERROR_SUCCESS);
 		goto error;
 	}
 
@@ -437,6 +457,8 @@ lines_iterator (lua_State *L)
 	}
 
 error:
+
+	results = storm_result (L, 0);
 
 	/* Is there error information? */
 	if (results > 1)
@@ -470,7 +492,7 @@ file_lines (lua_State *L)
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		return storm_result (L, 0);
+		goto error;
 	}
 
 	arguments = lua_gettop (L) - 1;
@@ -484,6 +506,9 @@ file_lines (lua_State *L)
 	lua_pushcclosure (L, lines_iterator, 2 + arguments);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 /**
@@ -508,6 +533,12 @@ file_write (lua_State *L)
 	int index = 1;
 	int arguments = lua_gettop (L) - index++;
 	int status = 0;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
 
 	if (!file->is_writable)
 	{
@@ -548,7 +579,7 @@ file_write (lua_State *L)
 	return 1;
 
 error:
-	return storm_result (L, status);
+	return storm_result (L, 0);
 }
 
 /**
@@ -561,7 +592,16 @@ error:
 static int
 file_setvbuf (lua_State *L)
 {
-	return storm_result (L, 1);
+	struct Storm_File *file = storm_file_access (L, 1);
+	int status = 1;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		status = 0;
+	}
+
+	return storm_result (L, status);
 }
 
 /**
@@ -574,7 +614,16 @@ file_setvbuf (lua_State *L)
 static int
 file_flush (lua_State *L)
 {
-	return storm_result (L, 1);
+	struct Storm_File *file = storm_file_access (L, 1);
+	int status = 1;
+
+	if (!file->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		status = 0;
+	}
+
+	return storm_result (L, status);
 }
 
 /**

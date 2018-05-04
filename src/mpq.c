@@ -122,15 +122,24 @@ mpq_count (lua_State *L)
 
 	DWORD count;
 
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
+
 	if (!SFileGetFileInfo (mpq->handle,
 		SFileMpqNumberOfFiles, &count, sizeof (count), 0))
 	{
-		return storm_result (L, 0);
+		goto error;
 	}
 
 	lua_pushinteger (L, (lua_Integer) count);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 /**
@@ -149,15 +158,24 @@ mpq_limit (lua_State *L)
 
 	DWORD limit;
 
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
+	}
+
 	if (!SFileGetFileInfo (mpq->handle,
 		SFileMpqMaxFileCount, &limit, sizeof (limit), 0))
 	{
-		return storm_result (L, 0);
+		goto error;
 	}
 
 	lua_pushinteger (L, (lua_Integer) limit);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 /**
@@ -174,14 +192,22 @@ mpq_has (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *name = luaL_checkstring (L, 2);
+	int status = 0;
 
-	int status = SFileHasFile (mpq->handle, name);
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
+
+	status = SFileHasFile (mpq->handle, name);
 
 	if (!status && GetLastError () == ERROR_FILE_NOT_FOUND)
 	{
 		SetLastError (ERROR_SUCCESS);
 	}
 
+out:
 	return storm_result (L, status);
 }
 
@@ -248,7 +274,7 @@ mpq_list (lua_State *L)
 	if (!mpq->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		return storm_result (L, 0);
+		goto error;
 	}
 
 	if (lua_isnoneornil (L, 2))
@@ -266,6 +292,9 @@ mpq_list (lua_State *L)
 	lua_pushcclosure (L, mpq_list_iterator, 3);
 
 	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 /**
@@ -302,6 +331,12 @@ mpq_open (lua_State *L)
 	if (length > 1 || !strchr ("rw", *mode))
 	{
 		return luaL_argerror (L, 3, "invalid mode");
+	}
+
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto error;
 	}
 
 	file = storm_file_initialize (L);
@@ -358,9 +393,15 @@ mpq_add (lua_State *L)
 
 	int status = 0;
 
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
+
 	if (!mpq_increase_limit (mpq))
 	{
-		goto error;
+		goto out;
 	}
 
 	if (!SFileAddFileEx (mpq->handle, path, name,
@@ -368,7 +409,7 @@ mpq_add (lua_State *L)
 		MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS,
 		MPQ_COMPRESSION_ZLIB, MPQ_COMPRESSION_ZLIB))
 	{
-		goto error;
+		goto out;
 	}
 
 	/* The count may be off by one unless we explicitly flush.  On the plus
@@ -376,12 +417,12 @@ mpq_add (lua_State *L)
 	 */
 	if (!SFileFlushArchive (mpq->handle))
 	{
-		goto error;
+		goto out;
 	}
 
 	status = 1;
 
-error:
+out:
 	return storm_result (L, status);
 }
 
@@ -401,9 +442,17 @@ mpq_extract (lua_State *L)
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *name = luaL_checkstring (L, 2);
 	const char *path = luaL_checkstring (L, 3);
+	int status = 0;
 
-	int status = SFileExtractFile (mpq->handle, name, path, 0);
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
 
+	status = SFileExtractFile (mpq->handle, name, path, 0);
+
+out:
 	return storm_result (L, status);
 }
 
@@ -421,9 +470,17 @@ mpq_remove (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *path = luaL_checkstring (L, 2);
+	int status = 0;
 
-	int status = SFileRemoveFile (mpq->handle, path, 0);
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
 
+	status = SFileRemoveFile (mpq->handle, path, 0);
+
+out:
 	return storm_result (L, status);
 }
 
@@ -442,9 +499,17 @@ mpq_rename (lua_State *L)
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *old = luaL_checkstring (L, 2);
 	const char *new = luaL_checkstring (L, 3);
+	int status = 0;
 
-	int status = SFileRenameFile (mpq->handle, old, new);
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
 
+	status = SFileRenameFile (mpq->handle, old, new);
+
+out:
 	return storm_result (L, status);
 }
 
@@ -462,8 +527,17 @@ static int
 mpq_compact (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	int status = SFileCompactArchive (mpq->handle, NULL, 0);
+	int status = 0;
 
+	if (!mpq->handle)
+	{
+		SetLastError (ERROR_INVALID_HANDLE);
+		goto out;
+	}
+
+	status = SFileCompactArchive (mpq->handle, NULL, 0);
+
+out:
 	return storm_result (L, status);
 }
 
