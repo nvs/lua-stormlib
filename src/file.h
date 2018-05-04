@@ -13,9 +13,6 @@ struct Storm_File
 	DWORD write_position;
 };
 
-extern void
-storm_file_metatable (lua_State *L);
-
 extern struct Storm_File
 *storm_file_access (lua_State *L, int index);
 

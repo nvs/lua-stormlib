@@ -8,23 +8,6 @@
 
 #define STORM_FINDER_METATABLE "Storm Finder"
 
-extern struct Storm_Finder
-*storm_finder_initialize (lua_State *L)
-{
-	struct Storm_Finder *finder = lua_newuserdata (L, sizeof (*finder));
-	finder->handle = NULL;
-
-	luaL_setmetatable (L, STORM_FINDER_METATABLE);
-
-	return finder;
-}
-
-extern struct Storm_Finder
-*storm_finder_access (lua_State *L, int index)
-{
-	return luaL_checkudata (L, index, STORM_FINDER_METATABLE);
-}
-
 /**
  * `finder:__gc ()`
  *
@@ -87,9 +70,13 @@ finder_methods [] =
 	{ NULL, NULL }
 };
 
-extern void
-storm_finder_metatable (lua_State *L)
+extern struct Storm_Finder
+*storm_finder_initialize (lua_State *L)
 {
+	struct Storm_Finder *finder = lua_newuserdata (L, sizeof (*finder));
+
+	finder->handle = NULL;
+
 	if (luaL_newmetatable (L, STORM_FINDER_METATABLE))
 	{
 		luaL_setfuncs (L, finder_methods, 0);
@@ -98,5 +85,13 @@ storm_finder_metatable (lua_State *L)
 		lua_setfield (L, -2, "__index");
 	}
 
-	lua_pop (L, 1);
+	lua_setmetatable (L, -2);
+
+	return finder;
+}
+
+extern struct Storm_Finder
+*storm_finder_access (lua_State *L, int index)
+{
+	return luaL_checkudata (L, index, STORM_FINDER_METATABLE);
 }

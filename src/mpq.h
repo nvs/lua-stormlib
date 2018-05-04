@@ -15,7 +15,4 @@ extern struct Storm_MPQ
 extern struct Storm_MPQ
 *storm_mpq_access (lua_State *L, int index);
 
-extern void
-storm_mpq_metatable (lua_State *L);
-
 #endif

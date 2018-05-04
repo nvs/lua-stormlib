@@ -12,24 +12,6 @@
 
 #define STORM_MPQ_METATABLE "Storm MPQ"
 
-extern struct Storm_MPQ
-*storm_mpq_initialize (lua_State *L)
-{
-	struct Storm_MPQ *mpq = lua_newuserdata (L, sizeof (*mpq));
-	mpq->handle = NULL;
-
-	luaL_setmetatable (L, STORM_MPQ_METATABLE);
-	storm_files_initialize (L, mpq);
-
-	return mpq;
-}
-
-extern struct Storm_MPQ
-*storm_mpq_access (lua_State *L, int index)
-{
-	return luaL_checkudata (L, index, STORM_MPQ_METATABLE);
-}
-
 static int
 mpq_increase_limit (const struct Storm_MPQ *mpq)
 {
@@ -594,9 +576,13 @@ mpq_methods [] =
 	{ NULL, NULL }
 };
 
-extern void
-storm_mpq_metatable (lua_State *L)
+extern struct Storm_MPQ
+*storm_mpq_initialize (lua_State *L)
 {
+	struct Storm_MPQ *mpq = lua_newuserdata (L, sizeof (*mpq));
+
+	mpq->handle = NULL;
+
 	if (luaL_newmetatable (L, STORM_MPQ_METATABLE))
 	{
 		luaL_setfuncs (L, mpq_methods, 0);
@@ -605,5 +591,14 @@ storm_mpq_metatable (lua_State *L)
 		lua_setfield (L, -2, "__index");
 	}
 
-	lua_pop (L, 1);
+	lua_setmetatable (L, -2);
+	storm_files_initialize (L, mpq);
+
+	return mpq;
+}
+
+extern struct Storm_MPQ
+*storm_mpq_access (lua_State *L, int index)
+{
+	return luaL_checkudata (L, index, STORM_MPQ_METATABLE);
 }

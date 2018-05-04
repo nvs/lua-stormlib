@@ -1,6 +1,4 @@
 #include "common.h"
-#include "file.h"
-#include "finder.h"
 #include "mpq.h"
 #include <StormLib.h>
 #include <StormPort.h>
@@ -65,24 +63,14 @@ storm_functions [] =
 	{ NULL, NULL }
 };
 
-static void
-storm_library (lua_State *L)
+extern int
+luaopen_stormlib (lua_State *L)
 {
 	luaL_newlib (L, storm_functions);
 
 	lua_pushliteral (L, "version");
 	lua_pushliteral (L, STORMLIB_VERSION_STRING);
 	lua_rawset (L, -3);
-}
-
-extern int
-luaopen_stormlib (lua_State *L)
-{
-	storm_mpq_metatable (L);
-	storm_file_metatable (L);
-	storm_finder_metatable (L);
-
-	storm_library (L);
 
 	return 1;
 }

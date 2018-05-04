@@ -9,27 +9,6 @@
 
 #define STORM_FILE_METATABLE "Storm File"
 
-extern struct Storm_File
-*storm_file_initialize (lua_State *L)
-{
-	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
-	file->handle = NULL;
-	file->archive = NULL;
-	file->buffering = 0;
-	file->is_writable = 0;
-	file->write_position = 0;
-
-	luaL_setmetatable (L, STORM_FILE_METATABLE);
-
-	return file;
-}
-
-extern struct Storm_File
-*storm_file_access (lua_State *L, int index)
-{
-	return luaL_checkudata (L, index, STORM_FILE_METATABLE);
-}
-
 /**
  * `file:size ()`
  *
@@ -745,9 +724,17 @@ file_methods [] =
 	{ NULL, NULL }
 };
 
-extern void
-storm_file_metatable (lua_State *L)
+extern struct Storm_File
+*storm_file_initialize (lua_State *L)
 {
+	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
+
+	file->handle = NULL;
+	file->archive = NULL;
+	file->buffering = 0;
+	file->is_writable = 0;
+	file->write_position = 0;
+
 	if (luaL_newmetatable (L, STORM_FILE_METATABLE))
 	{
 		luaL_setfuncs (L, file_methods, 0);
@@ -756,5 +743,13 @@ storm_file_metatable (lua_State *L)
 		lua_setfield (L, -2, "__index");
 	}
 
-	lua_pop (L, 1);
+	lua_setmetatable (L, -2);
+
+	return file;
+}
+
+extern struct Storm_File
+*storm_file_access (lua_State *L, int index)
+{
+	return luaL_checkudata (L, index, STORM_FILE_METATABLE);
 }
