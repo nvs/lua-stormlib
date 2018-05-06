@@ -386,37 +386,13 @@ lines_iterator (lua_State *L)
 	const struct Storm_File *file =
 		storm_file_access (L, lua_upvalueindex (1));
 
-	DWORD size;
-	DWORD position;
-
 	int index;
 	int arguments;
-	int results;
+	int results = 0;
 
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		goto error;
-	}
-
-	size = SFileGetFileSize (file->handle, NULL);
-
-	if (size == SFILE_INVALID_SIZE)
-	{
-		goto error;
-	}
-
-	position = SFileSetFilePointer (file->handle, 0, NULL, FILE_CURRENT);
-
-	if (position == SFILE_INVALID_POS)
-	{
-		goto error;
-	}
-
-	/* EOF?  Returning `false` is the same as `nil` in this case. */
-	if (position >= size)
-	{
-		SetLastError (ERROR_SUCCESS);
 		goto error;
 	}
 
@@ -442,7 +418,11 @@ lines_iterator (lua_State *L)
 
 error:
 
-	results = storm_result (L, 0);
+	/* A lack of results implies we did not attempt to read the file. */
+	if (results == 0)
+	{
+		results = storm_result (L, 0);
+	}
 
 	/* Is there error information? */
 	if (results > 1)
