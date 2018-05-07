@@ -500,7 +500,7 @@ file_write (lua_State *L)
 	int index = 1;
 	int arguments = lua_gettop (L) - index++;
 
-	if (!file->handle || !file->archive)
+	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
 		goto error;
@@ -536,10 +536,6 @@ file_write (lua_State *L)
 			goto error;
 		}
 
-		if (!file->buffering && !SFileFlushArchive (file->archive))
-		{
-			goto error;
-		}
 	}
 
 	file->write_position = SFileSetFilePointer (
@@ -558,18 +554,11 @@ error:
 }
 
 /**
- * `file:setvbuf (mode)`
+ * `file:setvbuf ()`
  *
- * Returns a `boolean` indicating whether the buffering `mode` (`string`)
- * was successfully set.  There are two available modes:
+ * Returns `true`.  The buffering mode when writing cannot be altered.
  *
- * - `"no"`: No buffering (the default); the result of any output operation
- *   appears immediately.
- * - `"full"`: Full buffering; output operation is performed only when the
- *   buffer is full or when `file:flush ()` is explicitly called.
- *
- * Using full buffering can yield a performance improvement at the cost of
- * an increased risk of archive corruption.  Use at your own discretion.
+ * This function exists to maintain consistency with Lua's I/O library.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -577,43 +566,24 @@ error:
 static int
 file_setvbuf (lua_State *L)
 {
-	static const char *const
-	mode_options [] = {
-		"no",
-		"full",
-		NULL
-	};
-
 	struct Storm_File *file = storm_file_access (L, 1);
-	int option = luaL_checkoption (L, 2, NULL, mode_options);
-	int status = 0;
+	int status = 1;
 
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
+		status = 0;
 	}
 
-	file->buffering = option;
-	status = 1;
-
-out:
 	return storm_result (L, status);
 }
 
 /**
  * `file:flush ()`
  *
- * Returns a `boolean` indicating that in-memory structures were
- * successfully saved to the `mpq` archive on disk.
+ * Returns `true`.  Data is automatically flushed to disk during write.
  *
- * Due to performance reasons, StormLib caches several structures in memory.
- * When a file is added to the MPQ, those structures are only updated in
- * memory.  Calling `file:flush ()` forces saving in-memory data, helping
- * prevent archive corruption.
- *
- * Note that this function flushes the entire archive (the same as
- * `mpq:flush ()`), not just the individual file.
+ * This function exists to maintain consistency with Lua's I/O library.
  *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
@@ -622,17 +592,14 @@ static int
 file_flush (lua_State *L)
 {
 	struct Storm_File *file = storm_file_access (L, 1);
-	int status = 0;
+	int status = 1;
 
-	if (!file->handle || !file->archive)
+	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
+		status = 0;
 	}
 
-	status = SFileFlushArchive (file->archive);
-
-out:
 	return storm_result (L, status);
 }
 
@@ -671,7 +638,6 @@ file_close (lua_State *L)
 	}
 
 	file->handle = NULL;
-	file->archive = NULL;
 
 	return storm_result (L, status);
 }
@@ -723,8 +689,6 @@ extern struct Storm_File
 	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
 
 	file->handle = NULL;
-	file->archive = NULL;
-	file->buffering = 0;
 	file->is_writable = 0;
 	file->write_position = 0;
 

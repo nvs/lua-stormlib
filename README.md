@@ -57,8 +57,7 @@ be addressed over time.
    before use.
 2. In situations where the archive is not closed and the Lua state is left
    open (e.g. with `os.exit ()`), corruption of the archive has been
-   observed.  This primarily applies to files opened in `w` mode that have
-   buffering enabled.
+   observed.
 3. Neither StormLib nor this library attempt to create directories.  If that
    functionality is required, one should seek a supplemental method (e.g.
    [LuaFileSystem]).
@@ -86,12 +85,6 @@ mpq:close ()
 
 -- Update mode.  Existing data is preserved.
 local mpq = stormlib.open ('example.w3x', 'r+')
-
--- The current number of files.
-mpq:count ()
-
--- The maximum number of files.
-mpq:limit ()
 
 -- Whether the archive contains the named file.
 mpq:has ('file.txt')
@@ -124,9 +117,6 @@ mpq:rename ('file.txt', 'other-file.txt')
 -- that this has the potential to be a costly operation on some archives.
 mpq:compact ()
 
--- Flush in-memory data to disk.
-mpq:flush ()
-
 do
     -- Read-only by default.  Only modes 'r' and 'w' are supported.
     local file = mpq:open ('file.txt')
@@ -149,10 +139,6 @@ do
     for line in file:lines () do
     end
 
-    -- Flush in-memory data to disk.  Note that this operates on the whole
-    -- archive, and not only this individual file.
-    file:flush ()
-
     file:close ()
 
     -- Write mode has a few caveats:
@@ -163,13 +149,6 @@ do
     --    files are truncated, but subsequent writes are forced to the then
     --    current end of file, regardless of calls to `file:seek ()`.
     local file = mpq:open ('file.txt', 'w', 1024)
-
-    -- No buffering is the default, and safest.
-    file:setvbuf ('no')
-
-    -- Full buffering offers the best performance, at a higher risk of
-    -- corrupting the archive if the executing program exits unexpectedly.
-    file:setvbuf ('full')
 
     -- Writing more than the stated size will error.
     file:write ('text', 'more text', 5, 'and more')

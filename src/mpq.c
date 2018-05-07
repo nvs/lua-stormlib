@@ -18,6 +18,12 @@ mpq_increase_limit (const struct Storm_MPQ *mpq)
 	DWORD count;
 	DWORD limit;
 
+	/* The count may be off unless we explicitly flush. */
+	if (!SFileFlushArchive (mpq->handle))
+	{
+		return 0;
+	}
+
 	if (!SFileGetFileInfo (mpq->handle,
 		SFileMpqNumberOfFiles, &count, sizeof (count), 0))
 	{
@@ -36,73 +42,6 @@ mpq_increase_limit (const struct Storm_MPQ *mpq)
 	}
 
 	return 1;
-}
-
-/**
- * `mpq:count ()`
- *
- * Returns the `number` of files present with the `mpq` archive.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_count (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	DWORD count;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto error;
-	}
-
-	if (!SFileGetFileInfo (mpq->handle,
-		SFileMpqNumberOfFiles, &count, sizeof (count), 0))
-	{
-		goto error;
-	}
-
-	lua_pushinteger (L, (lua_Integer) count);
-	return 1;
-
-error:
-	return storm_result (L, 0);
-}
-
-/**
- * `mpq:limit ()`
- *
- * Returns the maximum `number` of files that the `mpq` archive can contain.
- * This typically will be a value that is a power of two.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_limit (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	DWORD limit;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto error;
-	}
-
-	if (!SFileGetFileInfo (mpq->handle,
-		SFileMpqMaxFileCount, &limit, sizeof (limit), 0))
-	{
-		goto error;
-	}
-
-	lua_pushinteger (L, (lua_Integer) limit);
-	return 1;
-
-error:
-	return storm_result (L, 0);
 }
 
 /**
@@ -272,7 +211,6 @@ mpq_open (lua_State *L)
 	}
 
 	file = storm_file_initialize (L);
-	file->archive = mpq->handle;
 	file->is_writable = *mode == 'w';
 
 	if (file->is_writable)
@@ -350,14 +288,7 @@ mpq_add (lua_State *L)
 		goto out;
 	}
 
-	/*
-	 * The count may be off by one unless we explicitly flush.  On the plus
-	 * side, this makes it more difficult to corrupt the archive on error.
-	 */
-	if (!SFileFlushArchive (mpq->handle))
-	{
-		goto out;
-	}
+
 
 	status = 1;
 
@@ -482,38 +413,6 @@ out:
 }
 
 /**
- * `mpq:flush ()`
- *
- * Returns a `boolean` indicating that in-memory structures were
- * successfully saved to the `mpq` archive on disk.
- *
- * Due to performance reasons, StormLib caches several structures in memory.
- * When a file is added to the MPQ, those structures are only updated in
- * memory.  Calling `mpq:flush ()` forces saving in-memory data, helping
- * prevent archive corruption.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_flush (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	int status = 0;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
-	}
-
-	status = SFileFlushArchive (mpq->handle);
-
-out:
-	return storm_result (L, status);
-}
-
-/**
  * `mpq:close ()`
  *
  * Returns a `boolean` indicating that the `mpq` archive, along with any of
@@ -571,8 +470,6 @@ mpq_to_string (lua_State *L)
 static const luaL_Reg
 mpq_methods [] =
 {
-	{ "count", mpq_count },
-	{ "limit", mpq_limit },
 	{ "has", mpq_has },
 	{ "list", mpq_list },
 	{ "open", mpq_open },
@@ -581,7 +478,6 @@ mpq_methods [] =
 	{ "rename", mpq_rename },
 	{ "remove", mpq_remove },
 	{ "compact", mpq_compact },
-	{ "flush", mpq_flush },
 	{ "close", mpq_close },
 	{ "__tostring", mpq_to_string },
 	{ "__gc", mpq_close },
