@@ -526,6 +526,13 @@ file_write (lua_State *L)
 		if (!SFileWriteFile (file->handle,
 			text, (DWORD) size, MPQ_COMPRESSION_ZLIB))
 		{
+			/* All other errors are (probably) irrecoverable. */
+			if (GetLastError () != ERROR_DISK_FULL)
+			{
+				SFileFinishFile (file->handle);
+				file->handle = 0;
+			}
+
 			goto error;
 		}
 

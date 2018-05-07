@@ -288,6 +288,12 @@ mpq_open (lua_State *L)
 			/* NOLINTNEXTLINE(hicpp-signed-bitwise) */
 			MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS, &file->handle))
 		{
+			if (file->handle)
+			{
+				SFileFinishFile (file->handle);
+				file->handle = 0;
+			}
+
 			goto error;
 		}
 	}
