@@ -204,8 +204,14 @@ mpq_list (lua_State *L)
 		goto error;
 	}
 
-	if (lua_isnoneornil (L, 2))
+	if (lua_isnone (L, 2))
 	{
+		lua_pushnil (L);
+	}
+
+	if (lua_isnil (L, 2))
+	{
+		lua_pop (L, 1);
 		lua_pushliteral (L, "*");
 	}
 	else
