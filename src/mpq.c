@@ -391,6 +391,9 @@ out:
  * rebuilt.  This effectively defragments the archive, removing all gaps
  * that have been created by adding, replacing, renaming, or deleting files.
  *
+ * Note that this has the potential to be a costly operation on some
+ * archives.
+ *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
  */
