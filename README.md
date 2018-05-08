@@ -65,6 +65,8 @@ be addressed over time.
    such, care should be taken when naming or referencing files within the
    archive.
 5. Only zlib compression is supported at this time.
+6. Locales are not supported.  As such, the only locale ID used is `0`.
+7. Setting a file's date and time is not supported.
 
 [LuaFileSystem]: https://github.com/keplerproject/luafilesystem
 
