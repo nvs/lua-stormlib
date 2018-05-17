@@ -1,8 +1,8 @@
 #include "mpq.h"
 #include "common.h"
 #include "file.h"
-#include "files.h"
 #include "finder.h"
+#include "handles.h"
 #include <StormLib.h>
 #include <StormPort.h>
 #include <compat-5.3.h>
@@ -159,6 +159,8 @@ mpq_list (lua_State *L)
 	}
 
 	storm_finder_initialize (L);
+	storm_handles_add_finder (L, mpq, -1);
+
 	lua_insert (L, 1);
 
 	lua_pushcclosure (L, mpq_list_iterator, 3);
@@ -243,7 +245,7 @@ mpq_open (lua_State *L)
 		}
 	}
 
-	storm_files_insert (L, mpq, -1);
+	storm_handles_add_file (L, mpq, -1);
 	return 1;
 
 error:
@@ -437,7 +439,7 @@ mpq_close (lua_State *L)
 	}
 	else
 	{
-		storm_files_close (L, mpq);
+		storm_handles_close (L, mpq);
 		status = SFileCloseArchive (mpq->handle);
 		mpq->handle = NULL;
 	}
@@ -503,7 +505,7 @@ extern struct Storm_MPQ
 	}
 
 	lua_setmetatable (L, -2);
-	storm_files_initialize (L, mpq);
+	storm_handles_initialize (L, mpq);
 
 	return mpq;
 }
