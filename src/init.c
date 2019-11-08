@@ -68,10 +68,6 @@ luaopen_stormlib (lua_State *L)
 {
 	luaL_newlib (L, storm_functions);
 
-	lua_pushliteral (L, "version");
-	lua_pushliteral (L, STORMLIB_VERSION_STRING);
-	lua_rawset (L, -3);
-
 	return 1;
 }
 
