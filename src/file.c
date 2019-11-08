@@ -160,7 +160,6 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 
 	do
 	{
-		/* NOLINTNEXTLINE(misc-sizeof-expression) */
 		char *buffer = luaL_prepbuffer (&line);
 		int index = 0;
 
@@ -175,7 +174,6 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 
 			character = *buffer++;
 		}
-		/* NOLINTNEXTLINE(misc-sizeof-expression) */
 		while (character != '\n' && ++index < LUAL_BUFFERSIZE);
 
 		luaL_addsize (&line, index);
@@ -208,7 +206,6 @@ file_read_characters (lua_State *L,
 	{
 		char *buffer;
 
-		/* NOLINTNEXTLINE(misc-sizeof-expression) */
 		bytes_to_read = count > LUAL_BUFFERSIZE ? LUAL_BUFFERSIZE : count;
 		count -= bytes_to_read;
 

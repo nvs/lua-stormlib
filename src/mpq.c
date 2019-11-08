@@ -225,7 +225,6 @@ mpq_open (lua_State *L)
 		}
 
 		if (!SFileCreateFile (mpq->handle, name, 0, size, 0,
-			/* NOLINTNEXTLINE(hicpp-signed-bitwise) */
 			MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS, &file->handle))
 		{
 			if (file->handle)
@@ -283,14 +282,11 @@ mpq_add (lua_State *L)
 	}
 
 	if (!SFileAddFileEx (mpq->handle, path, name,
-		/* NOLINTNEXTLINE(hicpp-signed-bitwise) */
 		MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS,
 		MPQ_COMPRESSION_ZLIB, MPQ_COMPRESSION_ZLIB))
 	{
 		goto out;
 	}
-
-
 
 	status = 1;
 
