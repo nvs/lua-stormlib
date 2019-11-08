@@ -75,7 +75,7 @@ be addressed over time.
 ``` lua
 local stormlib = require ('stormlib')
 
--- Read-only by default.  Only modes 'r' and 'r+' are supported.
+-- Read-only by default.  Only modes 'r', 'w+', and 'r+' are supported.
 local mpq = stormlib.open ('example.w3x')
 print (mpq)
 
@@ -83,6 +83,11 @@ print (mpq)
 mpq:close ()
 
 local mpq = stormlib.open ('example.w3x', 'r')
+mpq:close ()
+
+-- Update mode.  Existing data is erased.  This can be used to create a new
+-- archive.
+local mpq = stormlib.open ('example.w3x', 'w+')
 mpq:close ()
 
 -- Update mode.  Existing data is preserved.
