@@ -330,11 +330,8 @@ file_read (lua_State *L)
 			goto error;
 		}
 
-		if (lua_rawlen (L, -1) == 0)
-		{
-			lua_pop (L, 1);
-			lua_pushnil (L);
-		}
+		lua_pop (L, 1);
+		lua_pushnil (L);
 	}
 
 	return index - 2;

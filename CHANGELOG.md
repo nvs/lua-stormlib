@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- `file:read (bytes)` did not return `nil` upon hitting the end-of-file in
+  Lua 5.1.
+
 ### Removed
 - `file:size ()` has been removed. Similar functionality can be achieved by
   using `file:seek ('end')`.
