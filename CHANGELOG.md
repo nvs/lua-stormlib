@@ -1,7 +1,9 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Removed
+- `file:size ()` has been removed. Similar functionality can be achieved by
+  using `file:seek ('end')`.
 
 ## [0.1.0] - 2019-11-07
 - Initial versioned release.

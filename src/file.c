@@ -10,40 +10,6 @@
 #define STORM_FILE_METATABLE "Storm File"
 
 /**
- * `file:size ()`
- *
- * Returns the size (a `number`) of the open file.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-file_size (lua_State *L)
-{
-	struct Storm_File *file = storm_file_access (L, 1);
-	DWORD size;
-
-	if (!file->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto error;
-	}
-
-	size = SFileGetFileSize (file->handle, NULL);
-
-	if (size == SFILE_INVALID_SIZE)
-	{
-		goto error;
-	}
-
-	lua_pushinteger (L, (lua_Integer) size);
-	return 1;
-
-error:
-	return storm_result (L, 0);
-}
-
-/**
  * `file:seek ([whence [, offset]])`
  *
  * Sets and gets the file position, measured from the beginning of the file,
@@ -667,7 +633,6 @@ file_to_string (lua_State *L)
 static const luaL_Reg
 file_methods [] =
 {
-	{ "size", file_size },
 	{ "seek", file_seek },
 	{ "read", file_read },
 	{ "lines", file_lines },
