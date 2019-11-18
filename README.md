@@ -132,8 +132,6 @@ do
 
     local file = mpq:open ('file.txt', 'r')
 
-    file:size ()
-
     file:seek ()
     file:seek ('cur', 15)
     file:seek ('end', -8)
