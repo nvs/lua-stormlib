@@ -277,6 +277,7 @@ file_read (lua_State *L)
 			if (position >= size)
 			{
 				SetLastError (ERROR_HANDLE_EOF);
+				lua_pushlstring (L, NULL, 0);
 				status = 0;
 			}
 			else
@@ -330,8 +331,17 @@ file_read (lua_State *L)
 			goto error;
 		}
 
-		lua_pop (L, 1);
-		lua_pushnil (L);
+		/*
+		 * Note that compat-5.3 simply defines `lua_rawlen` as a macro to
+		 * `lua_objlen` for Lua 5.1, despite the behavior not being
+		 * analogous for `number`.  Ensure that only `string` is at the top
+		 * of the stack to avoid this issue.
+		 */
+		if (lua_rawlen (L, -1) == 0)
+		{
+			lua_pop (L, 1);
+			lua_pushnil (L);
+		}
 	}
 
 	return index - 2;
