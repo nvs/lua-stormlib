@@ -56,8 +56,9 @@ be addressed over time.
    Linux (and even then, not very thorougly).  Please backup any files
    before use.
 2. In situations where the archive is not closed and the Lua state is left
-   open (e.g. with `os.exit ()`), corruption of the archive has been
-   observed.
+   open (e.g. with `os.exit ()`), corruption of the archive by StormLib has
+   been observed.  Opened archives and files are garbage collected to
+   minimize this issue.
 3. Neither StormLib nor this library attempt to create directories.  If that
    functionality is required, one should seek a supplemental method (e.g.
    [LuaFileSystem]).
