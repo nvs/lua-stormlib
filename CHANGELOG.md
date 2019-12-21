@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- N/A
+
+## [0.1.3] - 2019-12-21
 - Properly validate modes on `stormlib.open ()`: `w` was being accepted,
   when it should not have been.
 
@@ -19,7 +22,8 @@
 ## [0.1.0] - 2019-11-07
 - Initial versioned release.
 
-[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/nvs/lua-stormlib/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/nvs/lua-stormlib/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/nvs/lua-stormlib/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/nvs/lua-stormlib/releases/tag/v0.1.0
