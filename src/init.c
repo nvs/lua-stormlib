@@ -48,7 +48,7 @@ storm_open (lua_State *L)
 	{
 		flags = STREAM_FLAG_READ_ONLY;
 	}
-	else if (*mode && *mode != '+')
+	else if (!*mode || *mode != '+')
 	{
 		return luaL_argerror (L, 2, "invalid mode");
 	}

@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+- Properly validate modes on `stormlib.open ()`: `w` was being accepted,
+  when it should not have been.
 
 ## [0.1.2] - 2019-11-8
 - Properly fix `file:read (bytes)` upon hitting end-of-file in Lua 5.1.
