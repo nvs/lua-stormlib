@@ -15,11 +15,11 @@
  * The `mode` can be any of the following, and must match exactly:
  *
  * - `"r"`: Read mode (the default).
+ * - `"r+"`: Update mode.  Read and write functionality, preserving all
+ *   existing data.
  * - `"w+"`: Update mode.  Read and write functionality, all previous
  *   data is erased and the archive is recreated.  Archives created in this
  *   fashion will have both `(listfile)` and `(attributes)` support.
- * - `"r+"`: Update mode.  Read and write functionality, preserving all
- *   existing data.
  *
  * In case of success, this function returns a new `Storm MPQ` object.
  * Otherwise, it returns `nil`, a `string` describing the error, and a
@@ -28,29 +28,26 @@
 static int
 storm_open (lua_State *L)
 {
+	static const char *const
+	modes [] = {
+		"r",
+		"r+",
+		"w+",
+		NULL
+	};
+
 	const char *path = luaL_checkstring (L, 1);
 
-	size_t length;
-	const char *mode = luaL_optlstring (L, 2, "r", &length);
+	int index = luaL_checkoption (L, 2, "r", modes);
+	const char *mode = modes [index];
 
 	struct Storm_MPQ *mpq;
-	int is_writable;
+	const int truncate = *mode++ == 'w';
 	DWORD flags = 0;
 
-	if (length > 2 || !strchr ("rw", *mode))
-	{
-		return luaL_argerror (L, 2, "invalid mode");
-	}
-
-	is_writable = *mode++ == 'w';
-
-	if (!is_writable && !*mode)
+	if (!truncate && !*mode)
 	{
 		flags = STREAM_FLAG_READ_ONLY;
-	}
-	else if (!*mode || *mode != '+')
-	{
-		return luaL_argerror (L, 2, "invalid mode");
 	}
 
 	mpq = storm_mpq_initialize (L);
@@ -62,14 +59,14 @@ storm_open (lua_State *L)
 	 */
 	if (!SFileOpenArchive (path, 0, flags, &mpq->handle))
 	{
-		if (!is_writable)
+		if (!truncate)
 		{
 			goto error;
 		}
 	}
 
-	/* We have an archive that can be eopened, and need to truncate. */
-	else if (is_writable)
+	/* We have an archive that can be opened, and need to truncate. */
+	else if (truncate)
 	{
 		TFileStream *file;
 
