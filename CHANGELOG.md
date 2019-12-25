@@ -1,7 +1,9 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Changed
+- Accept `b` with `mpq:open ()`.  It does nothing, but maintains consistency
+  with the Lua I/O API.
 
 ## [0.1.3] - 2019-12-21
 - Properly validate modes on `stormlib.open ()`: `w` was being accepted,

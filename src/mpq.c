@@ -187,24 +187,31 @@ error:
  * provided, representing the size of the file.  The subsequent amount of
  * data written must equal this value.
  *
+ * Additionally, `"b"` is accepted at the end of the mode, representing
+ * binary mode.  However, it serves no actual purpose.
+ *
  * In case of error, returns `nil`, a `string` describing the error, and
  * a `number` indicating the error code.
  */
 static int
 mpq_open (lua_State *L)
 {
+	static const char *const
+	modes [] = {
+		"r",
+		"rb",
+		"w",
+		"wb",
+		NULL
+	};
+
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *name = luaL_checkstring (L, 2);
 
-	size_t length;
-	const char *mode = luaL_optlstring (L, 3, "r", &length);
+	int index = luaL_checkoption (L, 3, "r", modes);
+	const char *mode = modes [index];
 
 	struct Storm_File *file;
-
-	if (length > 1 || !strchr ("rw", *mode))
-	{
-		return luaL_argerror (L, 3, "invalid mode");
-	}
 
 	if (!mpq->handle)
 	{
