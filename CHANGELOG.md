@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- N/A
+
+## [0.1.4] - 2019-12-24
 ### Changed
 - Accept `b` with `mpq:open ()`.  It does nothing, but maintains consistency
   with the Lua I/O API.
