@@ -6,10 +6,12 @@
   with the Lua I/O API.
 
 ## [0.1.3] - 2019-12-21
+### Fixed
 - Properly validate modes on `stormlib.open ()`: `w` was being accepted,
   when it should not have been.
 
 ## [0.1.2] - 2019-11-8
+### Fixed
 - Properly fix `file:read (bytes)` upon hitting end-of-file in Lua 5.1.
 
 ## [0.1.1] - 2019-11-16
