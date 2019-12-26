@@ -78,7 +78,7 @@ out:
 }
 
 static int
-mpq_list_iterator (lua_State *L)
+mpq_files_iterator (lua_State *L)
 {
 	struct Storm_Finder *finder =
 		storm_finder_access (L, lua_upvalueindex (1));
@@ -91,10 +91,9 @@ mpq_list_iterator (lua_State *L)
 	{
 		const struct Storm_MPQ *mpq =
 			storm_mpq_access (L, lua_upvalueindex (2));
-		const char *mask = lua_tostring (L, lua_upvalueindex (3));
 
 		finder->handle = SFileFindFirstFile (
-			mpq->handle, mask, &data, NULL);
+			mpq->handle, "*", &data, NULL);
 		status = !!finder->handle;
 	}
 	else
@@ -118,22 +117,16 @@ mpq_list_iterator (lua_State *L)
 }
 
 /**
- * `mpq:list ([mask])`
+ * `mpq:files ()`
  *
- * Returns an iterator `function` that, each time it is called, returns the
- * next file name (`string`) that matches `mask` (`string`).  The default
- * `mask` value is `"*"`, which will return all files.
- *
- * A `mask` supports two control charcters, neither of which can be escaped:
- *
- * `"*"`: This will match zero or more characters.
- * `"?"`: This will match any single character.
+ * Returns an iterator `function` that, each time it is called, returns a
+ * file name (`string`).  Iterates over all file names in the archive.
  *
  * In case of errors this function raises the error, instead of returning an
  * error code.
  */
 static int
-mpq_list (lua_State *L)
+mpq_files (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 
@@ -143,27 +136,12 @@ mpq_list (lua_State *L)
 		goto error;
 	}
 
-	if (lua_isnone (L, 2))
-	{
-		lua_pushnil (L);
-	}
-
-	if (lua_isnil (L, 2))
-	{
-		lua_pop (L, 1);
-		lua_pushliteral (L, "*");
-	}
-	else
-	{
-		luaL_checkstring (L, 2);
-	}
-
 	storm_finder_initialize (L);
 	storm_handles_add_finder (L, mpq, -1);
 
 	lua_insert (L, 1);
 
-	lua_pushcclosure (L, mpq_list_iterator, 3);
+	lua_pushcclosure (L, mpq_files_iterator, 2);
 	return 1;
 
 error:
@@ -479,7 +457,7 @@ static const luaL_Reg
 mpq_methods [] =
 {
 	{ "has", mpq_has },
-	{ "list", mpq_list },
+	{ "files", mpq_files },
 	{ "open", mpq_open },
 	{ "add", mpq_add },
 	{ "extract", mpq_extract },

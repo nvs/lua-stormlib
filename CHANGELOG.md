@@ -1,7 +1,9 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Changed
+- `mpq:list ()` has been renamed to `mpq:files ()`, and no longer takes a
+  mask argument.
 
 ## [0.1.5] - 2019-12-26
 ### Fixed

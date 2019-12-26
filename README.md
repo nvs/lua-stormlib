@@ -97,15 +97,9 @@ local mpq = stormlib.open ('example.w3x', 'r+')
 -- Whether the archive contains the named file.
 mpq:has ('file.txt')
 
--- Iterate through a list of all file names.  Can use wildcards '*' (to
--- match any number of characters) and '?' (to match any single character).
--- By default, '*' is used.
-for name in mpq:list () do
+-- Iterate through a list of all file names.
+for name in mpq:files () do
     -- All files in archive.
-end
-
-for name in mpq:list ('war?map.*') do
-    -- All matching files.
 end
 
 -- If the archive is full, an attempt to automatically increase the limit
