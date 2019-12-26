@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Fixed
+- Address inability to bind against StormLib > `9.22`.
 
 ## [0.1.4] - 2019-12-24
 ### Changed
