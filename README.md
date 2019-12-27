@@ -99,10 +99,6 @@ for name in mpq:files () do
     -- All files in archive.
 end
 
--- Destination path must be explicit.  Does not create directories, nor does
--- it place a file within a specified directory.
-mpq:extract ('file.txt', 'path/to/a/file.txt')
-
 mpq:remove ('file.txt')
 mpq:rename ('file.txt', 'other-file.txt')
 

@@ -204,36 +204,6 @@ error:
 }
 
 /**
- * `mpq:extract (name, path)`
- *
- * Returns a `boolean` indicating that the file specified by `name`
- * (`string`) was successfully extracted from the `mpq` archive to `path`
- * (`string`).  Note that this function will not create directory paths.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_extract (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *name = luaL_checkstring (L, 2);
-	const char *path = luaL_checkstring (L, 3);
-	int status = 0;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
-	}
-
-	status = SFileExtractFile (mpq->handle, name, path, 0);
-
-out:
-	return storm_result (L, status);
-}
-
-/**
  * `mpq:remove (name)`
  *
  * Returns a `boolean` indicating the the file specified by `name`
@@ -382,7 +352,6 @@ mpq_methods [] =
 {
 	{ "files", mpq_files },
 	{ "open", mpq_open },
-	{ "extract", mpq_extract },
 	{ "rename", mpq_rename },
 	{ "remove", mpq_remove },
 	{ "compact", mpq_compact },
