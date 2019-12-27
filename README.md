@@ -99,11 +99,6 @@ for name in mpq:files () do
     -- All files in archive.
 end
 
--- If the archive is full, an attempt to automatically increase the limit
--- will be made.
-mpq:add ('path/to/a/file.txt') -- Adds as 'path/to/a/file.txt'.
-mpq:add ('path/to/a/file.txt', 'file.txt') -- Adds as 'file.txt'.
-
 -- Destination path must be explicit.  Does not create directories, nor does
 -- it place a file within a specified directory.
 mpq:extract ('file.txt', 'path/to/a/file.txt')

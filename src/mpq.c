@@ -204,49 +204,6 @@ error:
 }
 
 /**
- * `mpq:add (path [, name])`
- *
- * Returns a `boolean` indicating that the file specified by `path`
- * (`string`) was successfully added to the `mpq` archive as `name`
- * (`string`).  The default value for `name` is `path`.
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_add (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *path = luaL_checkstring (L, 2);
-	const char *name = luaL_optstring (L, 3, path);
-
-	int status = 0;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
-	}
-
-	if (!mpq_increase_limit (mpq))
-	{
-		goto out;
-	}
-
-	if (!SFileAddFileEx (mpq->handle, path, name,
-		MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS,
-		MPQ_COMPRESSION_ZLIB, MPQ_COMPRESSION_ZLIB))
-	{
-		goto out;
-	}
-
-	status = 1;
-
-out:
-	return storm_result (L, status);
-}
-
-/**
  * `mpq:extract (name, path)`
  *
  * Returns a `boolean` indicating that the file specified by `name`
@@ -425,7 +382,6 @@ mpq_methods [] =
 {
 	{ "files", mpq_files },
 	{ "open", mpq_open },
-	{ "add", mpq_add },
 	{ "extract", mpq_extract },
 	{ "rename", mpq_rename },
 	{ "remove", mpq_remove },

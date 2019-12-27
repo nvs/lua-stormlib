@@ -7,6 +7,7 @@
 ### Removed
 - The following functions have been removed:
   - `mpq:has ()`
+  - `mpq:add ()`
 
 ## [0.1.6] - 2019-12-16
 ### Changed
