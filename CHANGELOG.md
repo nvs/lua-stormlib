@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- `mpq:files ()` now takes an optional Lua pattern to refine the results.
+  It also supports plain text search as well.
+
 ### Fixed
 - Resolve `file:read ()` returning `nil` upon reaching end-of-file.
 

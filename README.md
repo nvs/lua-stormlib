@@ -99,6 +99,16 @@ for name in mpq:files () do
     -- All files in archive.
 end
 
+-- Can take a Lua pattern to refine the results.
+for name in mpq:files ('^war.map.*') do
+    -- All matching files.
+end
+
+-- Can also take a plain string.
+for name in mpq:files ('.txt', true) do
+    -- All files that contain the matching string.
+end
+
 mpq:remove ('file.txt')
 mpq:rename ('file.txt', 'other-file.txt')
 

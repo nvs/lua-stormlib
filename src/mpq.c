@@ -48,30 +48,62 @@ static int
 mpq_files_iterator (lua_State *L)
 {
 	struct Storm_Finder *finder =
-		storm_finder_access (L, lua_upvalueindex (1));
+		storm_finder_access (L, lua_upvalueindex (4));
+	const char *pattern = luaL_optstring (L, lua_upvalueindex (2), NULL);
+	const int plain = lua_toboolean (L, lua_upvalueindex (3));
 
 	SFILE_FIND_DATA data;
 	int status;
 	int results;
 
-	if (!finder->handle)
+	while (true)
 	{
-		const struct Storm_MPQ *mpq =
-			storm_mpq_access (L, lua_upvalueindex (2));
+		if (!finder->handle)
+		{
+			const struct Storm_MPQ *mpq =
+				storm_mpq_access (L, lua_upvalueindex (1));
 
-		finder->handle = SFileFindFirstFile (
-			mpq->handle, "*", &data, NULL);
-		status = !!finder->handle;
-	}
-	else
-	{
-		status = SFileFindNextFile (finder->handle, &data);
-	}
+			finder->handle = SFileFindFirstFile (
+				mpq->handle, "*", &data, NULL);
+			status = !!finder->handle;
+		}
+		else
+		{
+			status = SFileFindNextFile (finder->handle, &data);
+		}
 
-	if (status)
-	{
-		lua_pushstring (L, data.cFileName);
-		return 1;
+		if (!status)
+		{
+			break;
+		}
+
+		if (pattern)
+		{
+			lua_getglobal (L, "string");
+			lua_getfield (L, -1, "find");
+			lua_remove (L, -2);
+
+			lua_pushstring (L, data.cFileName);
+			lua_pushstring (L, pattern);
+			lua_pushnil (L);
+			lua_pushboolean (L, plain);
+			lua_call (L, 4, 1);
+
+			if (lua_isnil (L, -1))
+			{
+				status = 0;
+			}
+			else
+			{
+				lua_remove (L, -1);
+			}
+		}
+
+		if (status)
+		{
+			lua_pushstring (L, data.cFileName);
+			return 1;
+		}
 	}
 
 	if (GetLastError () == ERROR_NO_MORE_FILES)
@@ -84,10 +116,13 @@ mpq_files_iterator (lua_State *L)
 }
 
 /**
- * `mpq:files ()`
+ * `mpq:files ([pattern [, plain]])`
  *
- * Returns an iterator `function` that, each time it is called, returns a
- * file name (`string`).  Iterates over all file names in the archive.
+ * Returns an iterator `function` that, each time it is called, returns the
+ * next file name (`string`) that matches `pattern` (`string`) (which is a
+ * Lua pattern).  If `plain` (`boolean`) is specified, then pattern matching
+ * is disabled and a plain text search is performed.  The default behavior,
+ * should `pattern` be absent, is to return all files.
  *
  * In case of errors this function raises the error, instead of returning an
  * error code.
@@ -103,12 +138,17 @@ mpq_files (lua_State *L)
 		goto error;
 	}
 
+	if (!lua_isnoneornil (L, 2))
+	{
+		luaL_checkstring (L, 2);
+	}
+
+	lua_settop (L, 3);
+
 	storm_finder_initialize (L);
 	storm_handles_add_finder (L, mpq, -1);
 
-	lua_insert (L, 1);
-
-	lua_pushcclosure (L, mpq_files_iterator, 2);
+	lua_pushcclosure (L, mpq_files_iterator, 4);
 	return 1;
 
 error:
