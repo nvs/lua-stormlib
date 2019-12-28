@@ -94,9 +94,6 @@ mpq:close ()
 -- Update mode.  Existing data is preserved.
 local mpq = stormlib.open ('example.w3x', 'r+')
 
--- Whether the archive contains the named file.
-mpq:has ('file.txt')
-
 -- Iterate through a list of all file names.
 for name in mpq:files () do
     -- All files in archive.

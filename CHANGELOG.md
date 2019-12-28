@@ -4,6 +4,10 @@
 ### Fixed
 - Resolve `file:read ()` returning `nil` upon reaching end-of-file.
 
+### Removed
+- The following functions have been removed:
+  - `mpq:has ()`
+
 ## [0.1.6] - 2019-12-16
 ### Changed
 - `mpq:list ()` has been renamed to `mpq:files ()`, and no longer takes a

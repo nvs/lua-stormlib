@@ -44,39 +44,6 @@ mpq_increase_limit (const struct Storm_MPQ *mpq)
 	return 1;
 }
 
-/**
- * `mpq:has (name)`
- *
- * Returns a `boolean` indicating whether the `mpq` archive contains the
- * file specified by `name` (`string`).
- *
- * In case of error, returns `nil`, a `string` describing the error, and
- * a `number` indicating the error code.
- */
-static int
-mpq_has (lua_State *L)
-{
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *name = luaL_checkstring (L, 2);
-	int status = 0;
-
-	if (!mpq->handle)
-	{
-		SetLastError (ERROR_INVALID_HANDLE);
-		goto out;
-	}
-
-	status = SFileHasFile (mpq->handle, name);
-
-	if (!status && GetLastError () == ERROR_FILE_NOT_FOUND)
-	{
-		SetLastError (ERROR_SUCCESS);
-	}
-
-out:
-	return storm_result (L, status);
-}
-
 static int
 mpq_files_iterator (lua_State *L)
 {
@@ -456,7 +423,6 @@ mpq_to_string (lua_State *L)
 static const luaL_Reg
 mpq_methods [] =
 {
-	{ "has", mpq_has },
 	{ "files", mpq_files },
 	{ "open", mpq_open },
 	{ "add", mpq_add },
