@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- N/A
+
+## [0.2.0] -2019-12-27
 ### Changed
 - `mpq:files ()` now takes an optional Lua pattern to refine the results.
   It also supports plain text search as well.
@@ -49,7 +52,8 @@
 ## [0.1.0] - 2019-11-07
 - Initial versioned release.
 
-[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/nvs/lua-stormlib/compare/v0.1.6...v0.2.0
 [0.1.6]: https://github.com/nvs/lua-stormlib/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/nvs/lua-stormlib/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/nvs/lua-stormlib/compare/v0.1.3...v0.1.4
