@@ -38,9 +38,11 @@ luarocks install lua-stormlib
 ## Documentation
 
 For details regarding functionality, please consult the source files of this
-library.  It should be noted that an attempt has been made to adhere to the
-inferface provide by Lua's [I/O] library.  For basic references of how to
-use **lua-stormlib**, see the [Examples](#examples) section.
+library.  Each C function that represents part of the Lua API of
+**lua-stormlib** is appropriately documented.  It should be noted that an
+attempt has been made to adhere to the inferface provide by Lua's [I/O]
+library.  For basic references of how to use **lua-stormlib**, see the
+[Examples](#examples) section.
 
 For the majority of the functions, if an error is encountered, `nil` will be
 returned, along with a `string` describing the error, and a `number`
@@ -56,9 +58,10 @@ be addressed over time.
    Linux (and even then, not very thorougly).  Please backup any files
    before use.
 2. In situations where the archive is not closed and the Lua state is left
-   open (e.g. with `os.exit ()`), corruption of the archive by StormLib has
-   been observed.  Opened archives and files are garbage collected to
-   minimize this issue.
+   open (e.g. as can be the case with `os.exit ()`), corruption of the
+   archive by StormLib has been observed.  In normal usage this is
+   quite rare; however, opened archives and files are garbage collected to
+   further minimize this issue.
 3. Neither StormLib nor this library attempt to create directories.  If that
    functionality is required, one should seek a supplemental method (e.g.
    [LuaFileSystem]).
@@ -86,13 +89,13 @@ mpq:close ()
 local mpq = stormlib.open ('example.w3x', 'r')
 mpq:close ()
 
+-- Update mode.  Existing data is preserved.
+local mpq = stormlib.open ('example.w3x', 'r+')
+mpq:close ()
+
 -- Update mode.  Existing data is erased.  This can be used to create a new
 -- archive.
 local mpq = stormlib.open ('example.w3x', 'w+')
-mpq:close ()
-
--- Update mode.  Existing data is preserved.
-local mpq = stormlib.open ('example.w3x', 'r+')
 
 -- Iterate through a list of all file names.
 for name in mpq:files () do
