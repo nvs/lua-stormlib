@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Fixed
+- Resolve `file:read ()` returning `nil` upon reaching end-of-file.
 
 ## [0.1.6] - 2019-12-16
 ### Changed

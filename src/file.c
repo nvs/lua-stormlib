@@ -114,6 +114,15 @@ error:
 	return storm_result (L, 0);
 }
 
+/* Calls to the Lua API can change `errno`. */
+void
+file_read_pushresult (lua_State *L, luaL_Buffer *buffer)
+{
+	const int error = GetLastError ();
+	luaL_pushresult (buffer);
+	SetLastError (error);
+}
+
 static int
 file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 {
@@ -151,7 +160,7 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 		luaL_addchar (&line, character);
 	}
 
-	luaL_pushresult (&line);
+	file_read_pushresult (L, &line);
 
 	return status;
 }
@@ -184,7 +193,7 @@ file_read_characters (lua_State *L,
 	}
 	while (count > 0 && status);
 
-	luaL_pushresult (&characters);
+	file_read_pushresult (L, &characters);
 
 	return status;
 }
@@ -320,7 +329,6 @@ file_read (lua_State *L)
 			{
 				return luaL_argerror (L, index, "invalid format");
 			}
-
 		}
 	}
 
