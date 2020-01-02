@@ -149,10 +149,23 @@ do
     -- 2. The mode is more of a mix of write and append modes.  Existing
     --    files are truncated, but subsequent writes are forced to the then
     --    current end of file, regardless of calls to `file:seek ()`.
+    -- 3. Various other functionality is limited or does not function (e.g.
+          `file:seek ()` and `file:read ()`).
     local file = mpq:open ('file.txt', 'w', 1024)
 
     -- Writing more than the stated size will error.
     file:write ('text', 'more text', 5, 'and more')
+
+    -- Cannot read from a write mode file.
+    file:read (8) -> nil
+
+    -- Get the last written position and total file size.
+    file:seek ('cur')
+    file:seek ('end')
+
+    -- Any other usage is not supported and will return `nil`.
+    file:seek ('set') --> nil
+    file:seek ('end' -1) -> nil
 
     -- The total amount of written data must equal the size stated on
     -- opening the file or this will error.
