@@ -17,9 +17,9 @@
  * `whence` (`string`), as follows:
  *
  * - `"set"`: Base is position `0` (i.e. the beginning of the file).
- * - `"cur"`: Base is the current position.
- * - `"end"`: Base is the end of the file.  For writable files, this is the
- *   last written position (not the absolute file size).
+ * - `"cur"`: Base is the current position.  For writable files, this is the
+ *   last written position.
+ * - `"end"`: Base is the end of the file.
  *
  * In case of success, this function returns the final file position,
  * measured in bytes from the beginning of the file.  Otherwise, it returns
@@ -31,6 +31,12 @@
  * without changing it; the call `file:seek ('set')` sets the position to
  * the beginning of the file (and returns `0`); and the call `file:seek
  * ('end')` sets the position to the end of the file, and returns its size.
+ *
+ * Note that behavior for writable files is quite limited, and does not
+ * actually adjust the file position.  Only `"cur"` and `"end`" are
+ * supported, respectively returning the last written position and end of
+ * the file.  Additionally, an `offset`, if provided, must equal `0`.  All
+ * other usages will return `nil`.
  */
 static int
 file_seek (lua_State *L)
@@ -55,7 +61,8 @@ file_seek (lua_State *L)
 	LONG offset = (LONG) luaL_optinteger (L, 3, 0);
 
 	int mode = modes [option];
-	DWORD position;
+	TMPQFile *handle = file->handle;
+	DWORD position = 0;
 
 	if (!file->handle)
 	{
@@ -63,43 +70,35 @@ file_seek (lua_State *L)
 		goto error;
 	}
 
-	/*
-	 * For write enabled files, StormLib will return the file size when
-	 * `FILE_END` is used.  However, we want to consider the last position
-	 * written to be the end of the file.
-	 */
-	if (file->is_writable && mode == FILE_END)
+	if (file->is_writable)
 	{
-		position = SFileSetFilePointer
-			(file->handle, file->write_position, NULL, FILE_BEGIN);
+		luaL_argcheck (L, offset == 0, 3,
+			"offset must be `0` for writable files");
 
-		if (position == SFILE_INVALID_POS)
+		switch (mode)
 		{
-			goto error;
+			case FILE_BEGIN:
+			{
+				luaL_argerror (L, 3, "cannot use 'set' for writable files");
+				break;
+			}
+
+			case FILE_CURRENT:
+			{
+				position = handle->dwFilePos;
+				break;
+			}
+
+			case FILE_END:
+			{
+				position = handle->pFileEntry->dwFileSize;
+				break;
+			}
 		}
-
-		/* A positive offset takes us beyond the last position written. */
-		if (offset > 0)
-		{
-			offset = 0;
-		}
-
-		/* We are at the 'end' of the file now. */
-		mode = FILE_CURRENT;
 	}
-
-	position = SFileSetFilePointer (file->handle, offset, NULL, mode);
-
-	if (position == SFILE_INVALID_POS)
+	else
 	{
-		goto error;
-	}
-
-	/* Never go beyond the last position written. */
-	if (file->is_writable && position > file->write_position)
-	{
-		position = SFileSetFilePointer (
-			file->handle, file->write_position, NULL, FILE_BEGIN);
+		position = SFileSetFilePointer (handle, offset, NULL, mode);
 
 		if (position == SFILE_INVALID_POS)
 		{
