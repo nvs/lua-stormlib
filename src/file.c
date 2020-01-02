@@ -484,12 +484,6 @@ file_write (lua_State *L)
 		goto error;
 	}
 
-	if (SFileSetFilePointer (file->handle,
-		file->write_position, NULL, FILE_BEGIN) == SFILE_INVALID_POS)
-	{
-		goto error;
-	}
-
 	for (; arguments--; index++)
 	{
 		size_t size;
@@ -498,24 +492,9 @@ file_write (lua_State *L)
 		if (!SFileWriteFile (file->handle,
 			text, (DWORD) size, MPQ_COMPRESSION_ZLIB))
 		{
-			/* All other errors are (probably) irrecoverable. */
-			if (GetLastError () != ERROR_DISK_FULL)
-			{
-				SFileFinishFile (file->handle);
-				file->handle = 0;
-			}
-
 			goto error;
 		}
 
-	}
-
-	file->write_position = SFileSetFilePointer (
-		file->handle, 0, NULL, FILE_CURRENT);
-
-	if (file->write_position == SFILE_INVALID_POS)
-	{
-		goto error;
 	}
 
 	lua_settop (L, 1);
@@ -661,7 +640,6 @@ extern struct Storm_File
 
 	file->handle = NULL;
 	file->is_writable = 0;
-	file->write_position = 0;
 
 	if (luaL_newmetatable (L, STORM_FILE_METATABLE))
 	{

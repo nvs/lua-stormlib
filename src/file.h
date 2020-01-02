@@ -8,7 +8,6 @@ struct Storm_File
 {
 	HANDLE handle;
 	int is_writable;
-	DWORD write_position;
 };
 
 extern struct Storm_File
