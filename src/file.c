@@ -113,15 +113,6 @@ error:
 	return storm_result (L, 0);
 }
 
-/* Calls to the Lua API can change `errno`. */
-void
-file_read_pushresult (lua_State *L, luaL_Buffer *buffer)
-{
-	const int error = GetLastError ();
-	luaL_pushresult (buffer);
-	SetLastError (error);
-}
-
 static int
 file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 {
@@ -129,6 +120,7 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 
 	char character = '\0';
 	int status = 0;
+	int error;
 
 	luaL_buffinit (L, &line);
 
@@ -140,6 +132,7 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 		do
 		{
 			status = SFileReadFile (file->handle, buffer, 1, NULL, NULL);
+			error = GetLastError ();
 
 			if (!status)
 			{
@@ -159,8 +152,8 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 		luaL_addchar (&line, character);
 	}
 
-	file_read_pushresult (L, &line);
-
+	luaL_pushresult (&line);
+	SetLastError (error);
 	return status;
 }
 
@@ -173,6 +166,7 @@ file_read_characters (lua_State *L,
 	DWORD bytes_read;
 
 	int status = 0;
+	int error;
 
 	luaL_buffinit (L, &characters);
 
@@ -187,13 +181,14 @@ file_read_characters (lua_State *L,
 
 		status = SFileReadFile (file->handle, buffer,
 			bytes_to_read, &bytes_read, NULL);
+		error = GetLastError ();
 
 		luaL_addsize (&characters, bytes_read);
 	}
 	while (count > 0 && status);
 
-	file_read_pushresult (L, &characters);
-
+	luaL_pushresult (&characters);
+	SetLastError (error);
 	return status;
 }
 
