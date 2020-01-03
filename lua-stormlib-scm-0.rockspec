@@ -35,7 +35,7 @@ build = {
 			},
 			incdirs = {
 				'lib/compat-5.3/c-api',
-				'lib/stormlib'
+				'lib/stormlib/src'
 			}
 		}
    }

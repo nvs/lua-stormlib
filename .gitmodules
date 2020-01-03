@@ -1,3 +1,7 @@
 [submodule "compat-5.3"]
 	path = lib/compat-5.3
 	url = https://github.com/keplerproject/lua-compat-5.3
+[submodule "lib/stormlib"]
+	path = lib/stormlib
+	url = https://github.com/nvs/StormLib
+	branch = lua-stormlib
