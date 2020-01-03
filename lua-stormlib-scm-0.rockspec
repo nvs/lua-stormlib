@@ -1,3 +1,5 @@
+rockspec_format = "3.0"
+
 package = "lua-stormlib"
 version = "scm-0"
 
