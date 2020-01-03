@@ -7,6 +7,8 @@
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <luaconf.h>
+#include <stddef.h>
 
 /**
  * `file:seek ([whence [, offset]])`
@@ -379,7 +381,6 @@ lines_iterator (lua_State *L)
 	}
 
 	results = file_read (L);
-	lua_assert (results > 0);
 
 	/* If the first result is not `nil`, return all results. */
 	if (lua_toboolean (L, -results))

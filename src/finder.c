@@ -6,6 +6,7 @@
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <stddef.h>
 
 /**
  * `finder:__gc ()`

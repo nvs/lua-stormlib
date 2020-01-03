@@ -2,6 +2,7 @@
 #include <StormLib.h>
 #include <StormPort.h>
 #include <lua.h>
+#include <string.h>
 
 extern int
 storm_result (lua_State *L, const int status)

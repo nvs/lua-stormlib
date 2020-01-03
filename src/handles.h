@@ -1,7 +1,6 @@
 #ifndef STORM_HANDLES_H
 #define STORM_HANDLES_H
 
-#include <StormPort.h>
 #include <lua.h>
 
 struct Storm_File;
