@@ -1,7 +1,12 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Changed
+- `file:seek ()` behavior for writable files has changed:
+  - The file position does not change.
+  - Only 'cur' and 'end are accepted, and return the last write position and
+    end of file, repesctively.
+  - The offset, if provided, must be zero.
 
 ## [0.2.0] - 2019-12-27
 ### Changed
