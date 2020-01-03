@@ -1,12 +1,11 @@
 #include "finder.h"
 #include "common.h"
+#include "handles.h"
 #include <StormLib.h>
 #include <StormPort.h>
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
-
-#define STORM_FINDER_METATABLE "Storm Finder"
 
 /**
  * `finder:__gc ()`
@@ -29,6 +28,7 @@ finder_close (lua_State *L)
 	}
 	else
 	{
+		storm_handles_remove_finder (L, finder);
 		status = SFileFindClose (finder->handle);
 		finder->handle = NULL;
 	}

@@ -4,9 +4,14 @@
 #include <StormPort.h>
 #include <lua.h>
 
+struct Storm_MPQ;
+
+#define STORM_FINDER_METATABLE "Storm Finder"
+
 struct Storm_Finder
 {
 	HANDLE handle;
+	struct Storm_MPQ *mpq;
 };
 
 extern struct Storm_Finder

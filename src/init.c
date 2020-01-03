@@ -1,4 +1,5 @@
 #include "common.h"
+#include "handles.h"
 #include "mpq.h"
 #include <StormLib.h>
 #include <StormPort.h>
@@ -99,6 +100,7 @@ storm_open (lua_State *L)
 	}
 
 out:
+	storm_handles_initialize (L, mpq);
 	return 1;
 
 error:

@@ -1,13 +1,12 @@
 #include "file.h"
 #include "common.h"
+#include "handles.h"
 #include "mpq.h"
 #include <StormLib.h>
 #include <StormPort.h>
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
-
-#define STORM_FILE_METATABLE "Storm File"
 
 /**
  * `file:seek ([whence [, offset]])`
@@ -579,16 +578,21 @@ file_close (lua_State *L)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
 	}
-	else if (file->is_writable)
-	{
-		status = SFileFinishFile (file->handle);
-	}
 	else
 	{
-		status = SFileCloseFile (file->handle);
-	}
+		storm_handles_remove_file (L, file);
 
-	file->handle = NULL;
+		if (file->is_writable)
+		{
+			status = SFileFinishFile (file->handle);
+		}
+		else
+		{
+			status = SFileCloseFile (file->handle);
+		}
+
+		file->handle = NULL;
+	}
 
 	return storm_result (L, status);
 }

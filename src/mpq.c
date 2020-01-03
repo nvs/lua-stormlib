@@ -66,6 +66,11 @@ mpq_files_iterator (lua_State *L)
 			finder->handle = SFileFindFirstFile (
 				mpq->handle, "*", &data, NULL);
 			status = !!finder->handle;
+
+			if (status)
+			{
+				storm_handles_add_finder (L, lua_upvalueindex (4));
+			}
 		}
 		else
 		{
@@ -130,7 +135,7 @@ mpq_files_iterator (lua_State *L)
 static int
 mpq_files (lua_State *L)
 {
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
+	struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 
 	if (!mpq->handle)
 	{
@@ -145,8 +150,8 @@ mpq_files (lua_State *L)
 
 	lua_settop (L, 3);
 
-	storm_finder_initialize (L);
-	storm_handles_add_finder (L, mpq, -1);
+	struct Storm_Finder *finder = storm_finder_initialize (L);
+	finder->mpq = mpq;
 
 	lua_pushcclosure (L, mpq_files_iterator, 4);
 	return 1;
@@ -190,7 +195,7 @@ mpq_open (lua_State *L)
 		NULL
 	};
 
-	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
+	struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
 	const char *name = luaL_checkstring (L, 2);
 
 	int index = luaL_checkoption (L, 3, "r", modes);
@@ -205,6 +210,7 @@ mpq_open (lua_State *L)
 	}
 
 	file = storm_file_initialize (L);
+	file->mpq = mpq;
 	file->is_writable = *mode == 'w';
 
 	if (file->is_writable)
@@ -236,7 +242,7 @@ mpq_open (lua_State *L)
 		}
 	}
 
-	storm_handles_add_file (L, mpq, -1);
+	storm_handles_add_file (L, -1);
 	return 1;
 
 error:
@@ -417,7 +423,6 @@ extern struct Storm_MPQ
 	}
 
 	lua_setmetatable (L, -2);
-	storm_handles_initialize (L, mpq);
 
 	return mpq;
 }
