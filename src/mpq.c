@@ -8,6 +8,7 @@
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <stdio.h>
 #include <string.h>
 
 #define STORM_MPQ_METATABLE "Storm MPQ"
@@ -407,24 +408,79 @@ mpq_methods [] =
 	{ NULL, NULL }
 };
 
-extern struct Storm_MPQ
-*storm_mpq_initialize (lua_State *L)
+static void
+mpq_metatable (lua_State *L)
 {
-	struct Storm_MPQ *mpq = lua_newuserdata (L, sizeof (*mpq));
-
-	mpq->handle = NULL;
-
 	if (luaL_newmetatable (L, STORM_MPQ_METATABLE))
 	{
 		luaL_setfuncs (L, mpq_methods, 0);
-
 		lua_pushvalue (L, -1);
 		lua_setfield (L, -2, "__index");
 	}
 
 	lua_setmetatable (L, -2);
+}
 
-	return mpq;
+extern int
+storm_mpq_initialize (
+	lua_State *L,
+	const char *path,
+	const enum modes mode)
+{
+	HANDLE handle;
+	const DWORD flags = mode == READ ? STREAM_FLAG_READ_ONLY : 0;
+	const int status = SFileOpenArchive (path, 0, flags, &handle);
+
+	switch (mode)
+	{
+		case READ:
+		case UPDATE:
+		{
+			if (!status)
+			{
+				goto error;
+			}
+
+			break;
+		}
+
+		case WRITE:
+		{
+			if (status)
+			{
+				if (!SFileCloseArchive (handle))
+				{
+					goto error;
+				}
+
+				if (remove (path) == -1)
+				{
+					goto error;
+				}
+			}
+
+			if (!SFileCreateArchive (
+				path, MPQ_CREATE_LISTFILE | MPQ_CREATE_ATTRIBUTES,
+				HASH_TABLE_SIZE_MIN, &handle))
+			{
+				goto error;
+			}
+
+			break;
+		}
+	}
+
+
+	struct Storm_MPQ *mpq = lua_newuserdata (L, sizeof (*mpq));
+	mpq->handle = handle;
+
+	mpq_metatable (L);
+	storm_handles_initialize (L, mpq);
+
+	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 extern struct Storm_MPQ

@@ -1,8 +1,4 @@
-#include "common.h"
-#include "handles.h"
 #include "mpq.h"
-#include <StormLib.h>
-#include <StormPort.h>
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
@@ -30,8 +26,15 @@
 static int
 storm_open (lua_State *L)
 {
-	static const char *const
+	static const int
 	modes [] = {
+		READ,
+		UPDATE,
+		WRITE
+	};
+
+	static const char *const
+	modes_options [] = {
 		"r",
 		"r+",
 		"w+",
@@ -39,73 +42,11 @@ storm_open (lua_State *L)
 	};
 
 	const char *path = luaL_checkstring (L, 1);
+	const int index = luaL_checkoption (L, 2, "r", modes_options);
+	const enum modes mode = modes [index];
 
-	int index = luaL_checkoption (L, 2, "r", modes);
-	const char *mode = modes [index];
-
-	struct Storm_MPQ *mpq;
-	const int truncate = *mode++ == 'w';
-	DWORD flags = 0;
-
-	if (!truncate && !*mode)
-	{
-		flags = STREAM_FLAG_READ_ONLY;
-	}
-
-	mpq = storm_mpq_initialize (L);
-
-	/*
-	 * We wanted an archive, but failed to open it.  This is okay if we are
-	 * trying to create an archive, as `SFileCreateArchive ()` errors if one
-	 * exists and can be opened.
-	 */
-	if (!SFileOpenArchive (path, 0, flags, &mpq->handle))
-	{
-		if (!truncate)
-		{
-			goto error;
-		}
-	}
-
-	/* We have an archive that can be opened, and need to truncate. */
-	else if (truncate)
-	{
-		TFileStream *file;
-
-		if (!SFileCloseArchive (mpq->handle))
-		{
-			goto error;
-		}
-
-		file = FileStream_CreateFile (path, 0);
-
-		if (!file)
-		{
-			goto error;
-		}
-
-		FileStream_Close (file);
-	}
-
-	/* We have an archive to read. */
-	else
-	{
-		goto out;
-	}
-
-	if (!SFileCreateArchive (path,
-		MPQ_CREATE_LISTFILE | MPQ_CREATE_ATTRIBUTES,
-		HASH_TABLE_SIZE_MIN, &mpq->handle))
-	{
-		goto error;
-	}
-
-out:
-	storm_handles_initialize (L, mpq);
-	return 1;
-
-error:
-	return storm_result (L, 0);
+	lua_settop (L, 0);
+	return storm_mpq_initialize (L, path, mode);
 }
 
 static const luaL_Reg
