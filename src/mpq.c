@@ -45,82 +45,6 @@ mpq_increase_limit (const struct Storm_MPQ *mpq)
 	return 1;
 }
 
-static int
-mpq_files_iterator (lua_State *L)
-{
-	struct Storm_Finder *finder =
-		storm_finder_access (L, lua_upvalueindex (4));
-	const char *pattern = luaL_optstring (L, lua_upvalueindex (2), NULL);
-	const int plain = lua_toboolean (L, lua_upvalueindex (3));
-
-	SFILE_FIND_DATA data;
-	int status;
-	int results;
-
-	while (true)
-	{
-		if (!finder->handle)
-		{
-			const struct Storm_MPQ *mpq =
-				storm_mpq_access (L, lua_upvalueindex (1));
-
-			finder->handle = SFileFindFirstFile (
-				mpq->handle, "*", &data, NULL);
-			status = !!finder->handle;
-
-			if (status)
-			{
-				storm_handles_add_finder (L, lua_upvalueindex (4));
-			}
-		}
-		else
-		{
-			status = SFileFindNextFile (finder->handle, &data);
-		}
-
-		if (!status)
-		{
-			break;
-		}
-
-		if (pattern)
-		{
-			lua_getglobal (L, "string");
-			lua_getfield (L, -1, "find");
-			lua_remove (L, -2);
-
-			lua_pushstring (L, data.cFileName);
-			lua_pushstring (L, pattern);
-			lua_pushnil (L);
-			lua_pushboolean (L, plain);
-			lua_call (L, 4, 1);
-
-			if (lua_isnil (L, -1))
-			{
-				status = 0;
-			}
-			else
-			{
-				lua_remove (L, -1);
-			}
-		}
-
-		if (status)
-		{
-			lua_pushstring (L, data.cFileName);
-			return 1;
-		}
-	}
-
-	if (GetLastError () == ERROR_NO_MORE_FILES)
-	{
-		return 0;
-	}
-
-	results = storm_result (L, 0);
-	return luaL_error (L, "%s", lua_tostring (L, -results + 1));
-}
-
 /**
  * `mpq:files ([pattern [, plain]])`
  *
@@ -144,18 +68,11 @@ mpq_files (lua_State *L)
 		goto error;
 	}
 
-	if (!lua_isnoneornil (L, 2))
-	{
-		luaL_checkstring (L, 2);
-	}
+	const char *pattern = luaL_optstring (L, 2, NULL);
+	const int plain = lua_toboolean (L, 3);
 
-	lua_settop (L, 3);
-
-	struct Storm_Finder *finder = storm_finder_initialize (L);
-	finder->mpq = mpq;
-
-	lua_pushcclosure (L, mpq_files_iterator, 4);
-	return 1;
+	lua_settop (L, 0);
+	return storm_finder_initialize (L, mpq, pattern, plain);
 
 error:
 	return storm_result (L, 0);

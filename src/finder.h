@@ -11,11 +11,15 @@ struct Storm_MPQ;
 struct Storm_Finder
 {
 	HANDLE handle;
-	struct Storm_MPQ *mpq;
+	const struct Storm_MPQ *mpq;
 };
 
-extern struct Storm_Finder
-*storm_finder_initialize (lua_State *L);
+extern int
+storm_finder_initialize (
+	lua_State *L,
+	const struct Storm_MPQ *mpq,
+	const char *pattern,
+	const int plain);
 
 extern struct Storm_Finder
 *storm_finder_access (lua_State *L, int index);
