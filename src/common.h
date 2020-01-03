@@ -4,6 +4,8 @@
 #include <lua.h>
 
 extern int
-storm_result (lua_State *L, int status);
+storm_result (
+	lua_State *L,
+	int status);
 
 #endif

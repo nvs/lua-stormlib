@@ -381,8 +381,10 @@ error:
 	return storm_result (L, 0);
 }
 
-extern struct Storm_MPQ
-*storm_mpq_access (lua_State *L, int index)
+extern struct Storm_MPQ *
+storm_mpq_access (
+	lua_State *L,
+	int index)
 {
 	return luaL_checkudata (L, index, STORM_MPQ_METATABLE);
 }

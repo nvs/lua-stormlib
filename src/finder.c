@@ -181,8 +181,10 @@ storm_finder_initialize (
 	return 1;
 }
 
-extern struct Storm_Finder
-*storm_finder_access (lua_State *L, int index)
+extern struct Storm_Finder *
+storm_finder_access (
+	lua_State *L,
+	int index)
 {
 	return luaL_checkudata (L, index, STORM_FINDER_METATABLE);
 }

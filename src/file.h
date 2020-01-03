@@ -15,14 +15,16 @@ struct Storm_File
 	int is_writable;
 };
 
-extern struct Storm_File
-*storm_file_access (lua_State *L, int index);
-
 extern int
 storm_file_initialize (
 	lua_State *L,
 	struct Storm_MPQ *mpq,
 	const char *name,
 	const lua_Integer size);
+
+extern struct Storm_File *
+storm_file_access (
+	lua_State *L,
+	int index);
 
 #endif

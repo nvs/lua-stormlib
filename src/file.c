@@ -115,7 +115,10 @@ error:
 }
 
 static int
-file_read_line (lua_State *L, const struct Storm_File *file, int chop)
+file_read_line (
+	lua_State *L,
+	const struct Storm_File *file,
+	int chop)
 {
 	luaL_Buffer line;
 
@@ -159,8 +162,10 @@ file_read_line (lua_State *L, const struct Storm_File *file, int chop)
 }
 
 static int
-file_read_characters (lua_State *L,
-	const struct Storm_File *file, size_t count)
+file_read_characters (
+	lua_State *L,
+	const struct Storm_File *file,
+	size_t count)
 {
 	luaL_Buffer characters;
 	DWORD bytes_to_read;
@@ -640,7 +645,8 @@ file_methods [] =
 };
 
 static void
-file_metatable (lua_State *L)
+file_metatable (
+	lua_State *L)
 {
 	if (luaL_newmetatable (L, STORM_FILE_METATABLE))
 	{
@@ -695,8 +701,10 @@ error:
 	return storm_result (L, 0);
 }
 
-extern struct Storm_File
-*storm_file_access (lua_State *L, int index)
+extern struct Storm_File *
+storm_file_access (
+	lua_State *L,
+	int index)
 {
 	return luaL_checkudata (L, index, STORM_FILE_METATABLE);
 }

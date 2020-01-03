@@ -21,7 +21,9 @@ storm_mpq_initialize (
 	const char *path,
 	const enum modes mode);
 
-extern struct Storm_MPQ
-*storm_mpq_access (lua_State *L, int index);
+extern struct Storm_MPQ *
+storm_mpq_access (
+	lua_State *L,
+	int index);
 
 #endif

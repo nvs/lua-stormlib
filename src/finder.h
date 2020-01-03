@@ -21,7 +21,9 @@ storm_finder_initialize (
 	const char *pattern,
 	const int plain);
 
-extern struct Storm_Finder
-*storm_finder_access (lua_State *L, int index);
+extern struct Storm_Finder *
+storm_finder_access (
+	lua_State *L,
+	int index);
 
 #endif

@@ -5,7 +5,9 @@
 #include <string.h>
 
 extern int
-storm_result (lua_State *L, const int status)
+storm_result (
+	lua_State *L,
+	const int status)
 {
 	const DWORD error = GetLastError ();
 
