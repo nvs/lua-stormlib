@@ -3,7 +3,7 @@
 ## [Unreleased]
 - N/A
 
-## [0.2.0] -2019-12-27
+## [0.2.0] - 2019-12-27
 ### Changed
 - `mpq:files ()` now takes an optional Lua pattern to refine the results.
   It also supports plain text search as well.
