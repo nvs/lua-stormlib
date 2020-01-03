@@ -18,7 +18,11 @@ struct Storm_File
 extern struct Storm_File
 *storm_file_access (lua_State *L, int index);
 
-extern struct Storm_File
-*storm_file_initialize (lua_State *L);
+extern int
+storm_file_initialize (
+	lua_State *L,
+	struct Storm_MPQ *mpq,
+	const char *name,
+	const lua_Integer size);
 
 #endif

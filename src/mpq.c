@@ -197,12 +197,6 @@ mpq_open (lua_State *L)
 	};
 
 	struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *name = luaL_checkstring (L, 2);
-
-	int index = luaL_checkoption (L, 3, "r", modes);
-	const char *mode = modes [index];
-
-	struct Storm_File *file;
 
 	if (!mpq->handle)
 	{
@@ -210,41 +204,28 @@ mpq_open (lua_State *L)
 		goto error;
 	}
 
-	file = storm_file_initialize (L);
-	file->mpq = mpq;
-	file->is_writable = *mode == 'w';
+	const char *name = luaL_checkstring (L, 2);
+	const int index = luaL_checkoption (L, 3, "r", modes);
+	const char *mode = modes [index];
+	lua_Integer size;
 
-	if (file->is_writable)
+	if (*mode == 'r')
 	{
-		DWORD size = (DWORD) luaL_checkinteger (L, 4);
+		size = -1;
+	}
+	else
+	{
+		size = luaL_checkinteger (L, 4);
+		luaL_argcheck (L, size >= 0, 4, "size cannot be negative");
 
 		if (!mpq_increase_limit (mpq))
 		{
 			goto error;
 		}
-
-		if (!SFileCreateFile (mpq->handle, name, 0, size, 0,
-			MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS, &file->handle))
-		{
-			if (file->handle)
-			{
-				SFileFinishFile (file->handle);
-				file->handle = 0;
-			}
-
-			goto error;
-		}
-	}
-	else
-	{
-		if (!SFileOpenFileEx (mpq->handle, name, 0, &file->handle))
-		{
-			goto error;
-		}
 	}
 
-	storm_handles_add_file (L, -1);
-	return 1;
+	lua_settop (L, 0);
+	return storm_file_initialize (L, mpq, name, size);
 
 error:
 	return storm_result (L, 0);

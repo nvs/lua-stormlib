@@ -593,6 +593,7 @@ file_close (lua_State *L)
 		}
 
 		file->handle = NULL;
+		file->mpq = NULL;
 	}
 
 	return storm_result (L, status);
@@ -638,25 +639,60 @@ file_methods [] =
 	{ NULL, NULL }
 };
 
-extern struct Storm_File
-*storm_file_initialize (lua_State *L)
+static void
+file_metatable (lua_State *L)
 {
-	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
-
-	file->handle = NULL;
-	file->is_writable = 0;
-
 	if (luaL_newmetatable (L, STORM_FILE_METATABLE))
 	{
 		luaL_setfuncs (L, file_methods, 0);
-
 		lua_pushvalue (L, -1);
 		lua_setfield (L, -2, "__index");
 	}
 
 	lua_setmetatable (L, -2);
+}
 
-	return file;
+extern int
+storm_file_initialize (
+	lua_State *L,
+	struct Storm_MPQ *mpq,
+	const char *name,
+	const lua_Integer size)
+{
+	HANDLE handle;
+	const int is_writable = size >= 0;
+
+	if (is_writable)
+	{
+		if (!SFileCreateFile (mpq->handle, name, 0, size, 0,
+			MPQ_FILE_REPLACEEXISTING | MPQ_FILE_COMPRESS, &handle))
+		{
+			if (handle)
+			{
+				SFileFinishFile (handle);
+				handle = NULL;
+			}
+
+			goto error;
+		}
+	}
+	else if (!SFileOpenFileEx (mpq->handle, name, 0, &handle))
+	{
+		goto error;
+	}
+
+	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
+	file->handle = handle;
+	file->mpq = mpq;
+	file->is_writable = is_writable;
+
+	file_metatable (L);
+	storm_handles_add_file (L, -1);
+
+	return 1;
+
+error:
+	return storm_result (L, 0);
 }
 
 extern struct Storm_File
