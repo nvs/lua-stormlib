@@ -48,7 +48,7 @@ error:
 }
 
 static void
-mpq_refresh_open_files (
+refresh_open_files (
 	lua_State *L,
 	HANDLE handle)
 {
@@ -146,7 +146,7 @@ mpq_open (lua_State *L)
 				goto error;
 			}
 
-			storm_handles_iterate_files (L, mpq, &mpq_refresh_open_files);
+			storm_handles_iterate_files (L, mpq, &refresh_open_files);
 		}
 	}
 
