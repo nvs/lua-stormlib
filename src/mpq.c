@@ -170,7 +170,6 @@ static int
 mpq_remove (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *path = luaL_checkstring (L, 2);
 	int status = 0;
 
 	if (!mpq->handle)
@@ -179,6 +178,7 @@ mpq_remove (lua_State *L)
 		goto out;
 	}
 
+	const char *path = luaL_checkstring (L, 2);
 	status = SFileRemoveFile (mpq->handle, path, 0);
 
 out:
@@ -199,8 +199,6 @@ static int
 mpq_rename (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *old = luaL_checkstring (L, 2);
-	const char *new = luaL_checkstring (L, 3);
 	int status = 0;
 
 	if (!mpq->handle)
@@ -209,6 +207,8 @@ mpq_rename (lua_State *L)
 		goto out;
 	}
 
+	const char *old = luaL_checkstring (L, 2);
+	const char *new = luaL_checkstring (L, 3);
 	status = SFileRenameFile (mpq->handle, old, new);
 
 out:
