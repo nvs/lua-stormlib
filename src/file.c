@@ -292,7 +292,7 @@ file_read (lua_State *L)
 
 			case 'a':
 			{
-				read_characters (L, file, (size_t) size);
+				read_characters (L, file, size);
 				break;
 			}
 
