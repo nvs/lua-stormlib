@@ -146,7 +146,10 @@ mpq_open (lua_State *L)
 				goto error;
 			}
 
-			storm_handles_iterate_files (L, mpq, &refresh_open_files);
+			if (((TMPQArchive *) mpq->handle)->pHashTable)
+			{
+				storm_handles_iterate_files (L, mpq, &refresh_open_files);
+			}
 		}
 	}
 
