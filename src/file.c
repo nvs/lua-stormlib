@@ -117,7 +117,7 @@ error:
 }
 
 static int
-file_read_line (
+read_line (
 	lua_State *L,
 	const struct Storm_File *file,
 	int chop)
@@ -125,33 +125,32 @@ file_read_line (
 	luaL_Buffer line;
 
 	char character = '\0';
-	int status = 0;
+	int status = 1;
 	int error;
 
 	luaL_buffinit (L, &line);
 
-	do
+	while (status && character != '\n')
 	{
 		char *buffer = luaL_prepbuffer (&line);
 		int index = 0;
 
-		do
+		while (index < LUAL_BUFFERSIZE)
 		{
-			status = SFileReadFile (file->handle, buffer, 1, NULL, NULL);
+			status = SFileReadFile (
+				file->handle, &character, 1, NULL, NULL);
 			error = GetLastError ();
 
-			if (!status)
+			if (!status || character == '\n')
 			{
 				break;
 			}
 
-			character = *buffer++;
+			buffer [index++] = character;
 		}
-		while (character != '\n' && ++index < LUAL_BUFFERSIZE);
 
 		luaL_addsize (&line, index);
 	}
-	while (status && character != '\n');
 
 	if (!chop && character == '\n')
 	{
@@ -164,36 +163,31 @@ file_read_line (
 }
 
 static int
-file_read_characters (
+read_characters (
 	lua_State *L,
 	const struct Storm_File *file,
-	size_t count)
+	lua_Integer count)
 {
 	luaL_Buffer characters;
-	DWORD bytes_to_read;
-	DWORD bytes_read;
-
-	int status = 0;
-	int error;
-
 	luaL_buffinit (L, &characters);
 
-	do
-	{
-		char *buffer;
+	DWORD bytes_to_read;
+	DWORD bytes_read;
+	int status = 1;
+	int error = ERROR_SUCCESS;
 
+	while (count > 0 && status)
+	{
 		bytes_to_read = count > LUAL_BUFFERSIZE ? LUAL_BUFFERSIZE : count;
 		count -= bytes_to_read;
+		char *buffer = luaL_prepbuffsize (&characters, bytes_to_read);
 
-		buffer = luaL_prepbuffsize (&characters, bytes_to_read);
-
-		status = SFileReadFile (file->handle, buffer,
-			bytes_to_read, &bytes_read, NULL);
+		status = SFileReadFile (
+			file->handle, buffer, bytes_to_read, &bytes_read, NULL);
 		error = GetLastError ();
 
 		luaL_addsize (&characters, bytes_read);
 	}
-	while (count > 0 && status);
 
 	luaL_pushresult (&characters);
 	SetLastError (error);
@@ -231,12 +225,6 @@ file_read (lua_State *L)
 {
 	const struct Storm_File *file = storm_file_access (L, 1);
 
-	DWORD size;
-	int index;
-	int arguments;
-
-	int status = 0;
-
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
@@ -249,17 +237,17 @@ file_read (lua_State *L)
 		goto error;
 	}
 
-	size = SFileGetFileSize (file->handle, NULL);
+	DWORD size = SFileGetFileSize (file->handle, NULL);
 
 	if (size == SFILE_INVALID_SIZE)
 	{
 		goto error;
 	}
 
-	index = 1;
-	arguments = lua_gettop (L) - index++;
+	int index = 1;
+	int arguments = lua_gettop (L) - index++;
 
-	/* By default, read a line (with no line break) */
+	/* By default, read a line (with no line break). */
 	if (arguments == 0)
 	{
 		arguments++;
@@ -269,38 +257,19 @@ file_read (lua_State *L)
 	/* Ensure stack space for all results and the buffer. */
 	luaL_checkstack (L, arguments + LUA_MINSTACK, "too many arguments");
 
-	status = 1;
+	int status = 1;
 
 	for (; arguments-- && status; index++)
 	{
-		const char *format;
-
 		if (lua_type (L, index) == LUA_TNUMBER)
 		{
-			DWORD position = SFileSetFilePointer (
-				file->handle, 0, NULL, FILE_CURRENT);
-
-			if (position == SFILE_INVALID_POS)
-			{
-				goto error;
-			}
-
-			if (position >= size)
-			{
-				SetLastError (ERROR_HANDLE_EOF);
-				lua_pushlstring (L, NULL, 0);
-				status = 0;
-			}
-			else
-			{
-				size_t count = (size_t) luaL_checkinteger (L, index);
-				status = file_read_characters (L, file, count);
-			}
+			const lua_Integer count = luaL_checkinteger (L, index);
+			status = read_characters (L, file, count);
 
 			continue;
 		}
 
-		format = luaL_checkstring (L, index);
+		const char *format = luaL_checkstring (L, index);
 
 		if (*format == '*')
 		{
@@ -311,19 +280,19 @@ file_read (lua_State *L)
 		{
 			case 'l':
 			{
-				status = file_read_line (L, file, 1);
+				status = read_line (L, file, 1);
 				break;
 			}
 
 			case 'L':
 			{
-				status = file_read_line (L, file, 0);
+				status = read_line (L, file, 0);
 				break;
 			}
 
 			case 'a':
 			{
-				file_read_characters (L, file, (size_t) size);
+				read_characters (L, file, (size_t) size);
 				break;
 			}
 
@@ -365,9 +334,6 @@ lines_iterator (lua_State *L)
 {
 	const struct Storm_File *file =
 		storm_file_access (L, lua_upvalueindex (1));
-
-	int index;
-	int arguments;
 	int results = 0;
 
 	if (!file->handle)
@@ -379,10 +345,10 @@ lines_iterator (lua_State *L)
 	lua_settop (L, 0);
 	lua_pushvalue (L, lua_upvalueindex (1));
 
-	arguments = (int) lua_tointeger (L, lua_upvalueindex (2));
+	const int arguments = (int) lua_tointeger (L, lua_upvalueindex (2));
 	luaL_checkstack (L, arguments, "too many arguments");
 
-	for (index = 1; index <= arguments; index++)
+	for (int index = 1; index <= arguments; index++)
 	{
 		lua_pushvalue (L, lua_upvalueindex (2 + index));
 	}
@@ -396,7 +362,6 @@ lines_iterator (lua_State *L)
 	}
 
 error:
-
 	/* A lack of results implies we did not attempt to read the file. */
 	if (results == 0)
 	{
@@ -434,22 +399,19 @@ file_lines (lua_State *L)
 {
 	const struct Storm_File *file = storm_file_access (L, 1);
 
-	int arguments;
-
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
 		goto error;
 	}
 
-	arguments = lua_gettop (L) - 1;
+	const int arguments = lua_gettop (L) - 1;
 
 	luaL_argcheck (L, arguments <= LINES_MAXIMUM_ARGUMENTS,
 		LINES_MAXIMUM_ARGUMENTS + 1, "too many arguments");
 
 	lua_pushinteger (L, arguments);
 	lua_insert (L, 2);
-
 	lua_pushcclosure (L, lines_iterator, 2 + arguments);
 	return 1;
 
@@ -476,9 +438,6 @@ file_write (lua_State *L)
 {
 	struct Storm_File *file = storm_file_access (L, 1);
 
-	int index = 1;
-	int arguments = lua_gettop (L) - index++;
-
 	if (!file->handle)
 	{
 		SetLastError (ERROR_INVALID_HANDLE);
@@ -491,13 +450,16 @@ file_write (lua_State *L)
 		goto error;
 	}
 
+	int index = 1;
+	int arguments = lua_gettop (L) - index++;
+
 	for (; arguments--; index++)
 	{
 		size_t size;
 		const char *text = luaL_checklstring (L, index, &size);
 
-		if (!SFileWriteFile (file->handle,
-			text, (DWORD) size, MPQ_COMPRESSION_ZLIB))
+		if (!SFileWriteFile (
+			file->handle, text, size, MPQ_COMPRESSION_ZLIB))
 		{
 			goto error;
 		}
