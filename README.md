@@ -55,13 +55,12 @@ This is a list of known limitations of **lua-stormlib**.  Some of these may
 be addressed over time.
 
 1. **TL;DR: Your mileage may vary.**  This library has only been tested on
-   Linux (and even then, not very thorougly).  Please backup any files
-   before use.
-2. In situations where the archive is not closed and the Lua state is left
-   open (e.g. as can be the case with `os.exit ()`), corruption of the
-   archive by StormLib has been observed.  In normal usage this is
-   quite rare; however, opened archives and files are garbage collected to
-   further minimize this issue.
+   Linux.  Please backup any files before use.
+2. In situations where a writable archive is not closed and the Lua state is
+   left open (e.g. as can be the case with `os.exit ()`), corruption of the
+   archive by StormLib has been observed.  In normal usage this is quite
+   rare; however, opened archives and files are garbage collected to further
+   minimize this issue.
 3. Neither StormLib nor this library attempt to create directories.  If that
    functionality is required, one should seek a supplemental method (e.g.
    [LuaFileSystem]).
@@ -71,6 +70,7 @@ be addressed over time.
 5. Only zlib compression is supported at this time.
 6. Locales are not supported.  As such, the only locale ID used is `0`.
 7. Setting a file's date and time is not supported.
+8. Functionality primarily targets Warcraft III and its use cases.
 
 [LuaFileSystem]: https://github.com/keplerproject/luafilesystem
 
