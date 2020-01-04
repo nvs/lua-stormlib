@@ -9,6 +9,8 @@
 #include <lua.h>
 #include <luaconf.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * `file:seek ([whence [, offset]])`
@@ -599,6 +601,8 @@ file_close (lua_State *L)
 
 		file->handle = NULL;
 		file->mpq = NULL;
+		free (file->name);
+		file->name = NULL;
 	}
 
 	return storm_result (L, status);
@@ -689,6 +693,8 @@ storm_file_initialize (
 
 	struct Storm_File *file = lua_newuserdata (L, sizeof (*file));
 	file->handle = handle;
+	file->name = malloc (sizeof (*file->name) * strlen (name) + 1);
+	strcpy (file->name, name);
 	file->mpq = mpq;
 	file->is_writable = is_writable;
 

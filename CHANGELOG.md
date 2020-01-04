@@ -8,6 +8,10 @@
     end of file, repesctively.
   - The offset, if provided, must be zero.
 
+### Fixed
+- Automatic increasing of an archive's file limits now works properly when
+  there are open files.
+
 ## [0.2.0] - 2019-12-27
 ### Changed
 - `mpq:files ()` now takes an optional Lua pattern to refine the results.

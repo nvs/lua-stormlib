@@ -3,6 +3,7 @@
 #include "file.h"
 #include "finder.h"
 #include "handles.h"
+#include <StormCommon.h>
 #include <StormLib.h>
 #include <StormPort.h>
 #include <compat-5.3.h>
@@ -12,38 +13,6 @@
 #include <string.h>
 
 #define STORM_MPQ_METATABLE "Storm MPQ"
-
-static int
-mpq_increase_limit (const struct Storm_MPQ *mpq)
-{
-	DWORD count;
-	DWORD limit;
-
-	/* The count may be off unless we explicitly flush. */
-	if (!SFileFlushArchive (mpq->handle))
-	{
-		return 0;
-	}
-
-	if (!SFileGetFileInfo (mpq->handle,
-		SFileMpqNumberOfFiles, &count, sizeof (count), 0))
-	{
-		return 0;
-	}
-
-	if (!SFileGetFileInfo (mpq->handle,
-		SFileMpqMaxFileCount, &limit, sizeof (limit), 0))
-	{
-		return 0;
-	}
-
-	if (count == limit && !SFileSetMaxFileCount (mpq->handle, limit + 1))
-	{
-		return 0;
-	}
-
-	return 1;
-}
 
 /**
  * `mpq:files ([pattern [, plain]])`
@@ -76,6 +45,22 @@ mpq_files (lua_State *L)
 
 error:
 	return storm_result (L, 0);
+}
+
+static void
+mpq_refresh_open_files (
+	lua_State *L,
+	HANDLE handle)
+{
+	const struct Storm_File *file = handle;
+
+	DWORD dwHashIndex = HASH_ENTRY_FREE;
+	TMPQArchive *ha = file->mpq->handle;
+	TMPQFile *hf = file->handle;
+
+	hf->pFileEntry = GetFileEntryExact (
+		file->mpq->handle, file->name, 0, &dwHashIndex);
+	hf->pHashEntry = ha->pHashTable + dwHashIndex;
 }
 
 /**
@@ -135,9 +120,33 @@ mpq_open (lua_State *L)
 		size = luaL_checkinteger (L, 4);
 		luaL_argcheck (L, size >= 0, 4, "size cannot be negative");
 
-		if (!mpq_increase_limit (mpq))
+		DWORD count;
+		DWORD limit;
+
+		if (!SFileGetFileInfo (mpq->handle,
+			SFileMpqNumberOfFiles, &count, sizeof (count), 0))
 		{
 			goto error;
+		}
+
+		/* Unless flushed, certain files (e.g. the listfile and attributes)
+		 * do not appear in the count.  Err on the side of caution. */
+		count = count + 4;
+
+		if (!SFileGetFileInfo (mpq->handle,
+			SFileMpqMaxFileCount, &limit, sizeof (limit), 0))
+		{
+			goto error;
+		}
+
+		if (count >= limit)
+		{
+			if (!SFileSetMaxFileCount (mpq->handle, limit + 1))
+			{
+				goto error;
+			}
+
+			storm_handles_iterate_files (L, mpq, &mpq_refresh_open_files);
 		}
 	}
 

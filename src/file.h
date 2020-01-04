@@ -12,6 +12,7 @@ struct Storm_File
 {
 	HANDLE handle;
 	struct Storm_MPQ *mpq;
+	char *name;
 	int is_writable;
 };
 
