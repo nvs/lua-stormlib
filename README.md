@@ -165,7 +165,7 @@ do
 
     -- Any other usage is not supported and will return `nil`.
     file:seek ('set') --> nil
-    file:seek ('end' -1) -> nil
+    file:seek ('end', -1) -> nil
 
     -- The total amount of written data must equal the size stated on
     -- opening the file or this will error.
