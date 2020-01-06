@@ -283,7 +283,7 @@ mpq_close (lua_State *L)
  * `mpq:__tostring ()`
  *
  * Returns a `string` representation of the `mpq` archive, indicating
- * whether it is closed, open for writing, or open for reading.
+ * whether it is closed.
  */
 static int
 mpq_to_string (lua_State *L)
