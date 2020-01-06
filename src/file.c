@@ -580,16 +580,7 @@ static int
 file_to_string (lua_State *L)
 {
 	const struct Storm_File *file = storm_file_access (L, 1);
-	const char *text;
-
-	if (!file->handle)
-	{
-		text = "%s (%p) (Closed)";
-	}
-	else
-	{
-		text = "%s (%p)";
-	}
+	const char *text = file->handle ? "%s (%p)" : "%s (%p) (Closed)";
 
 	lua_pushfstring (L, text, STORM_FILE_METATABLE, file);
 	return 1;

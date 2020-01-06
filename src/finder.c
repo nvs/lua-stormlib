@@ -48,19 +48,9 @@ static int
 finder_to_string (lua_State *L)
 {
 	const struct Storm_Finder *finder = storm_finder_access (L, 1);
-	const char *text;
-
-	if (!finder->handle)
-	{
-		text = "%s (%p) (Closed)";
-	}
-	else
-	{
-		text = "%s (%p)";
-	}
+	const char *text = finder->handle ? "%s (%p)" : "%s (%p) (Closed)";
 
 	lua_pushfstring (L, text, STORM_FINDER_METATABLE, finder);
-
 	return 1;
 }
 

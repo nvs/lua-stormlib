@@ -289,16 +289,7 @@ static int
 mpq_to_string (lua_State *L)
 {
 	const struct Storm_MPQ *mpq = storm_mpq_access (L, 1);
-	const char *text;
-
-	if (!mpq->handle)
-	{
-		text = "%s (%p) (Closed)";
-	}
-	else
-	{
-		text = "%s (%p)";
-	}
+	const char *text = mpq->handle ? "%s (%p)" : "%s (%p) (Closed)";
 
 	lua_pushfstring (L, text, STORM_MPQ_METATABLE, mpq);
 	return 1;
