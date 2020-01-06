@@ -64,6 +64,7 @@ finder_iterator (lua_State *L)
 
 	SFILE_FIND_DATA data;
 	int status;
+	int error = ERROR_SUCCESS;
 	int results = 0;
 
 	while (true)
@@ -72,6 +73,7 @@ finder_iterator (lua_State *L)
 		{
 			finder->handle = SFileFindFirstFile (
 				finder->mpq->handle, "*", &data, NULL);
+			error = GetLastError ();
 			status = !!finder;
 
 			if (status)
@@ -120,11 +122,12 @@ finder_iterator (lua_State *L)
 		finder_close (L);
 	}
 
-	if (status || GetLastError () == ERROR_NO_MORE_FILES)
+	if (status || error == ERROR_NO_MORE_FILES)
 	{
 		return results;
 	}
 
+	SetLastError (error);
 	results = storm_result (L, 0);
 
 error:
