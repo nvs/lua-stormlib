@@ -60,10 +60,10 @@ file_seek (lua_State *L)
 	};
 
 	const struct Storm_File *file = storm_file_access (L, 1);
-	int option = luaL_checkoption (L, 2, "cur", mode_options);
-	LONG offset = (LONG) luaL_optinteger (L, 3, 0);
+	const int option = luaL_checkoption (L, 2, "cur", mode_options);
+	const int mode = modes [option];
+	LONG offset = luaL_optinteger (L, 3, 0);
 
-	int mode = modes [option];
 	TMPQFile *handle = file->handle;
 	DWORD position = 0;
 
@@ -123,12 +123,11 @@ read_line (
 	int chop)
 {
 	luaL_Buffer line;
+	luaL_buffinit (L, &line);
 
 	char character = '\0';
 	int status = 1;
 	int error;
-
-	luaL_buffinit (L, &line);
 
 	while (status && character != '\n')
 	{
