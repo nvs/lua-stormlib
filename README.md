@@ -1,6 +1,6 @@
 # lua-stormlib
 
-[![License](https://img.shields.io/github/license/nvs/lua-stormlib.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/nvs/lua-stormlib)](LICENSE)
 
 ## Contents
 
