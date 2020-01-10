@@ -150,7 +150,7 @@ do
     --    files are truncated, but subsequent writes are forced to the then
     --    current end of file, regardless of calls to `file:seek ()`.
     -- 3. Various other functionality is limited or does not function (e.g.
-          `file:seek ()` and `file:read ()`).
+    --    `file:seek ()` and `file:read ()`).
     local file = mpq:open ('file.txt', 'w', 1024)
 
     -- Writing more than the stated size will error.
