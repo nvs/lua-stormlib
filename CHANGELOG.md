@@ -29,7 +29,7 @@
   - `mpq:add ()`
   - `mpq:extract ()`
 
-## [0.1.6] - 2019-12-16
+## [0.1.6] - 2019-12-26
 ### Changed
 - `mpq:list ()` has been renamed to `mpq:files ()`, and no longer takes a
   mask argument.
