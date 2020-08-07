@@ -64,7 +64,7 @@ finder_iterator (lua_State *L)
 
 	SFILE_FIND_DATA data;
 	int status;
-	int error = ERROR_SUCCESS;
+	int error;
 	int results = 0;
 
 	while (true)
@@ -73,7 +73,6 @@ finder_iterator (lua_State *L)
 		{
 			finder->handle = SFileFindFirstFile (
 				finder->mpq->handle, "*", &data, NULL);
-			error = GetLastError ();
 			status = !!finder;
 
 			if (status)
@@ -117,6 +116,7 @@ finder_iterator (lua_State *L)
 
 	if (!status)
 	{
+		error = GetLastError ();
 		lua_settop (L, 0);
 		lua_pushvalue (L, lua_upvalueindex (1));
 		finder_close (L);
