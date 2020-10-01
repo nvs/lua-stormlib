@@ -157,7 +157,7 @@ do
     file:write ('text', 'more text', 5, 'and more')
 
     -- Cannot read from a write mode file.
-    file:read (8) -> nil
+    file:read (8) --> nil
 
     -- Get the last written position and total file size.
     file:seek ('cur')
@@ -165,7 +165,7 @@ do
 
     -- Any other usage is not supported and will return `nil`.
     file:seek ('set') --> nil
-    file:seek ('end', -1) -> nil
+    file:seek ('end', -1) --> nil
 
     -- The total amount of written data must equal the size stated on
     -- opening the file or this will error.
