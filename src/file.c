@@ -130,7 +130,7 @@ read_line (
 
 	char character = '\0';
 	int status = 1;
-	int error;
+	int error = 0;
 
 	while (status && character != '\n')
 	{
@@ -173,7 +173,7 @@ read_characters (
 	luaL_Buffer characters;
 	luaL_buffinit (L, &characters);
 
-	DWORD bytes_read;
+	DWORD bytes_read = 0;
 	int status = 1;
 	int error = ERROR_SUCCESS;
 
@@ -624,7 +624,7 @@ storm_file_initialize (
 	const char *name,
 	const lua_Integer size)
 {
-	HANDLE handle;
+	HANDLE handle = NULL;
 	const int is_writable = size >= 0;
 
 	if (is_writable)

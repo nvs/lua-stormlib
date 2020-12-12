@@ -123,8 +123,8 @@ mpq_open (lua_State *L)
 		size = luaL_checkinteger (L, 4);
 		luaL_argcheck (L, size >= 0, 4, "size cannot be negative");
 
-		DWORD count;
-		DWORD limit;
+		DWORD count = 0;
+		DWORD limit = 0;
 
 		if (!SFileGetFileInfo (mpq->handle,
 			SFileMpqNumberOfFiles, &count, sizeof (count), 0))
@@ -331,7 +331,7 @@ storm_mpq_initialize (
 	const char *path,
 	const enum modes mode)
 {
-	HANDLE handle;
+	HANDLE handle = NULL;
 	const DWORD flags = mode == READ ? STREAM_FLAG_READ_ONLY : 0;
 	const int status = SFileOpenArchive (path, 0, flags, &handle);
 

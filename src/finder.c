@@ -66,8 +66,8 @@ finder_iterator (lua_State *L)
 	const int plain = lua_toboolean (L, lua_upvalueindex (3));
 
 	SFILE_FIND_DATA data;
-	int status;
-	int error;
+	int status = 0;
+	int error = 0;
 	int results = 0;
 
 	while (true)
