@@ -1,11 +1,13 @@
 #include "handles.h"
+
 #include "file.h"
 #include "finder.h"
 #include "mpq.h"
-#include <StormPort.h>
+
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <StormPort.h>
 
 #define STORM_HANDLES_METATABLE "Storm Handles"
 

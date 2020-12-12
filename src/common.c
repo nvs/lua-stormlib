@@ -1,7 +1,9 @@
 #include "common.h"
+
+#include <lua.h>
 #include <StormLib.h>
 #include <StormPort.h>
-#include <lua.h>
+
 #include <string.h>
 
 extern int

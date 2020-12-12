@@ -1,14 +1,17 @@
 #include "mpq.h"
+
 #include "common.h"
 #include "file.h"
 #include "finder.h"
 #include "handles.h"
-#include <StormCommon.h>
-#include <StormLib.h>
-#include <StormPort.h>
+
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
+#include <StormCommon.h>
+#include <StormLib.h>
+#include <StormPort.h>
+
 #include <stdio.h>
 #include <string.h>
 

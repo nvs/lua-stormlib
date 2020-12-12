@@ -1,8 +1,8 @@
 #ifndef STORM_FINDER_H
 #define STORM_FINDER_H
 
-#include <StormPort.h>
 #include <lua.h>
+#include <StormPort.h>
 
 struct Storm_MPQ;
 
