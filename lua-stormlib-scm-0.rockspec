@@ -28,7 +28,6 @@ build = {
 				'src/finder.c',
 				'src/handles.c',
 				'src/mpq.c',
-				'lib/compat-5.3/c-api/compat-5.3.c',
 				'lib/stormlib/src/SBaseCommon.c',
 				'lib/stormlib/src/SBaseFileTable.c',
 			},
