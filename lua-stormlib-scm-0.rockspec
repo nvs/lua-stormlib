@@ -18,8 +18,8 @@ dependencies = {
 }
 
 build = {
-   type = "builtin",
-   modules = {
+	type = "builtin",
+	modules = {
 		['stormlib'] = {
 			sources = {
 				'src/init.c',
