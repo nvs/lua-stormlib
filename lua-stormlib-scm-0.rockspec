@@ -27,9 +27,7 @@ build = {
 				'src/file.c',
 				'src/finder.c',
 				'src/handles.c',
-				'src/mpq.c',
-				'lib/stormlib/src/SBaseCommon.c',
-				'lib/stormlib/src/SBaseFileTable.c',
+				'src/mpq.c'
 			},
 			libraries = {
 				'storm'

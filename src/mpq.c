@@ -8,7 +8,6 @@
 #include <compat-5.3.h>
 #include <lauxlib.h>
 #include <lua.h>
-#include <StormCommon.h>
 #include <StormLib.h>
 #include <StormPort.h>
 
@@ -57,13 +56,18 @@ refresh_open_files (
 {
 	const struct Storm_File *file = handle;
 
-	DWORD dwHashIndex = HASH_ENTRY_FREE;
 	TMPQArchive *ha = file->mpq->handle;
 	TMPQFile *hf = file->handle;
 
-	hf->pFileEntry = GetFileEntryExact (
-		file->mpq->handle, file->name, 0, &dwHashIndex);
-	hf->pHashEntry = ha->pHashTable + dwHashIndex;
+	SFILE_FIND_DATA data;
+	HANDLE finder = SFileFindFirstFile (ha, file->name, &data, NULL);
+
+	if (finder)
+	{
+		hf->pFileEntry = ha->pFileTable + data.dwBlockIndex;
+		hf->pHashEntry = ha->pHashTable + data.dwHashIndex;
+		SFileFindClose (finder);
+	}
 }
 
 /**
