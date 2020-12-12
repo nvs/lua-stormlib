@@ -173,14 +173,14 @@ read_characters (
 	luaL_Buffer characters;
 	luaL_buffinit (L, &characters);
 
-	DWORD bytes_to_read;
 	DWORD bytes_read;
 	int status = 1;
 	int error = ERROR_SUCCESS;
 
 	while (count > 0 && status)
 	{
-		bytes_to_read = count > LUAL_BUFFERSIZE ? LUAL_BUFFERSIZE : count;
+		DWORD bytes_to_read =
+			count > LUAL_BUFFERSIZE ? LUAL_BUFFERSIZE : count;
 		count -= bytes_to_read;
 		char *buffer = luaL_prepbuffsize (&characters, bytes_to_read);
 
