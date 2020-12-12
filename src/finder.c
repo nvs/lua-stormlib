@@ -133,7 +133,6 @@ finder_iterator (lua_State *L)
 	SetLastError (error);
 	results = storm_result (L, 0);
 
-error:
 	return luaL_error (L, "%s", lua_tostring (L, -results + 1));
 }
 
