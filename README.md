@@ -40,7 +40,7 @@ luarocks install lua-stormlib
 For details regarding functionality, please consult the source files of this
 library.  Each C function that represents part of the Lua API of
 **lua-stormlib** is appropriately documented.  It should be noted that an
-attempt has been made to adhere to the inferface provide by Lua's [I/O]
+attempt has been made to adhere to the inferface provided by Lua's [I/O]
 library.  For basic references of how to use **lua-stormlib**, see the
 [Examples](#examples) section.
 
