@@ -46,7 +46,11 @@ build = {
 			},
 			incdirs = {
 				'lib/compat-5.3/c-api',
-				'lib/stormlib/src'
+				'lib/stormlib/src',
+				'$(STORM_INCDIR)'
+			},
+			libdirs = {
+				'$(STORM_LIBDIR)'
 			}
 		}
 	},
