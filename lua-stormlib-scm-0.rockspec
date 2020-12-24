@@ -35,7 +35,7 @@ external_dependencies = {
 build = {
 	type = 'builtin',
 	modules = {
-		stormlib = {
+		storm = {
 			sources = {
 				'src/init.c',
 				'src/common.c',

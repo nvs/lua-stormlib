@@ -59,7 +59,7 @@ storm_functions [] =
 };
 
 extern int
-luaopen_stormlib (lua_State *L)
+luaopen_storm (lua_State *L)
 {
 	luaL_newlib (L, storm_functions);
 
