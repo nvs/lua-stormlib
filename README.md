@@ -22,7 +22,7 @@ adhere to the interface provided by Lua's [I/O] library.
 
 The following two dependencies must be met to utilize this library:
 
-- [StormLib] `>= 9.23`
+- [StormLib] `= 9.23`
 - [Lua] `>= 5.1` or [LuaJIT] `>= 2.0`
 
 The easiest (and only supported) way to install **lua-stormlib** is to use
