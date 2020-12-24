@@ -17,10 +17,25 @@ dependencies = {
 	'lua >= 5.1, < 5.5',
 }
 
+external_dependencies = {
+	platforms = {
+		linux = {
+			STORM = {
+				library = 'storm'
+			}
+		},
+		windows = {
+			STORM = {
+				library = 'stormlib'
+			}
+		}
+	}
+}
+
 build = {
-	type = "builtin",
+	type = 'builtin',
 	modules = {
-		['stormlib'] = {
+		stormlib = {
 			sources = {
 				'src/init.c',
 				'src/common.c',
@@ -29,13 +44,30 @@ build = {
 				'src/handles.c',
 				'src/mpq.c'
 			},
-			libraries = {
-				'storm'
-			},
 			incdirs = {
 				'lib/compat-5.3/c-api',
 				'lib/stormlib/src'
 			}
 		}
-   }
+	},
+	platforms = {
+		linux = {
+			modules = {
+				stormlib = {
+					libraries = {
+						'storm'
+					}
+				}
+			}
+		},
+		windows = {
+			modules = {
+				stormlib = {
+					libraries = {
+						'stormlib'
+					}
+				}
+			}
+		}
+	}
 }
