@@ -57,7 +57,7 @@ build = {
 	platforms = {
 		linux = {
 			modules = {
-				stormlib = {
+				storm = {
 					libraries = {
 						'storm'
 					}
@@ -66,7 +66,7 @@ build = {
 		},
 		windows = {
 			modules = {
-				stormlib = {
+				storm = {
 					libraries = {
 						'stormlib'
 					}
