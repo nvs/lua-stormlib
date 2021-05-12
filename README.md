@@ -1,28 +1,21 @@
 # lua-stormlib
 
-[![License](https://img.shields.io/github/license/nvs/lua-stormlib)](LICENSE)
+**lua-stormlib** provides a [Lua] binding to [StormLib].  It provides two
+interfaces: one in the style of [Lua's I/O] library and one that is
+similar to the [StormLib API].
 
 ## Contents
 
-- [Overview](#overview)
 - [Installation](#installation)
-- [Documentation](#documentation)
-- [Examples](#examples)
-
-## Overview
-
-**lua-stormlib** provides a [Lua] binding to [StormLib].  It attempts to
-adhere to the interface provided by Lua's [I/O] library.
-
-[Lua]: https://www.lua.org
-[StormLib]: https://github.com/ladislav-zezula/StormLib
-[I/O]: https://www.lua.org/manual/5.3/manual.html#6.8
+- [Usage](#usage)
+- [Lua API](#lua-api)
+- [Core API](#core-api)
 
 ## Installation
 
 The following two dependencies must be met to utilize this library:
 
-- [StormLib] `= 9.23`
+- [StormLib] `>= 9.23`
 - [Lua] `>= 5.1` or [LuaJIT] `>= 2.0`
 
 The easiest (and only supported) way to install **lua-stormlib** is to use
@@ -32,49 +25,39 @@ The easiest (and only supported) way to install **lua-stormlib** is to use
 luarocks install lua-stormlib
 ```
 
-[Luarocks]: https://luarocks.org
-[LuaJIT]: https://luajit.org
+## Usage
 
-## Documentation
+There are two ways to utilize this library:
 
-For details regarding functionality, please consult the source files of this
-library.  Each C function that represents part of the Lua API of
-**lua-stormlib** is appropriately documented.  It should be noted that an
-attempt has been made to adhere to the inferface provided by Lua's [I/O]
-library.  For basic references of how to use **lua-stormlib**, see the
-[Examples](#examples) section.
-
-For the majority of the functions, if an error is encountered, `nil` will be
-returned, along with a `string` describing the error, and a `number`
-indicating the error code.  The exceptions to this rule would be the
-iterators, which always raise.
+1. The easiest is to make use of the Lua API of **lua-stormlib**.  It should
+   be noted that an attempt has been made to adhere to the interface
+   provided by [Lua's I/O] library.  For details, see the [Lua
+   API](#lua-api).
+2. For users that want an experience that is closer to using StormLib
+   directly, the Core API of **lua-stormlib** can be leveraged.  An
+   attempt has been made to mirror the StormLib API, within reason.  For
+   details, see the [Core API](#core-api).
 
 ### Caveats
 
 This is a list of known limitations of **lua-stormlib**.  Some of these may
 be addressed over time.
 
-1. **TL;DR: Your mileage may vary.**  This library has only been tested on
-   Linux.  Please backup any files before use.
-2. In situations where a writable archive is not closed and the Lua state is
-   left open (e.g. as can be the case with `os.exit ()`), corruption of the
-   archive by StormLib has been observed.  In normal usage this is quite
-   rare; however, opened archives and files are garbage collected to further
-   minimize this issue.
-3. Neither StormLib nor this library attempt to create directories.  If that
-   functionality is required, one should seek a supplemental method (e.g.
-   [LuaFileSystem]).
-4. StormLib considers forward slashes and backslashes to be distinct.  As
-   such, care should be taken when naming or referencing files within the
-   archive.
-5. Only zlib compression is supported at this time.
-6. Locales are not supported.  As such, the only locale ID used is `0`.
-7. Setting a file's date and time is not supported.
-8. Functionality primarily targets Warcraft III and its use cases.
+1. **TL;DR: Your mileage may vary.**  Please backup any files before use.
+2. This library has only been tested on Linux and WSL.  No testing has been
+   done on Windows.  Nor are there any plans to.  Pull requests to ensure
+   proper Windows functionality are welcome.
+3. Not every function provided by StormLib is fully supported yet within
+   the Core API.  In particular, `SFileGetFileInfo ()` has behavior that has
+   not been implemented yet.
 
-[LuaFileSystem]: https://github.com/keplerproject/luafilesystem
+## Lua API
 
-## Examples
+The Lua API of **lua-stormlib** is written entirely in Lua using the Core
+API of this project.  As such, behaviors mentioned there apply here as
+well.  This API mirrors [Lua's I/O] library, and should feel very
+comfortable to those familiar with Lua.  For a full list of supported
+functions, consult the source.  Here are some examples:
 
 ``` lua
 local stormlib = require ('stormlib')
@@ -121,7 +104,7 @@ mpq:rename ('file.txt', 'other-file.txt')
 mpq:compact ()
 
 do
-    -- Read-only by default.  Only modes 'r' and 'w' are supported.
+    -- All Lua I/O for file handle objects should be supported.
     local file = mpq:open ('file.txt')
     print (file)
     file:close ()
@@ -134,45 +117,95 @@ do
     file:seek ('set')
 
     file:read ()
-    file:read ('*a')
     file:read ('l', '*L', 512)
+    file:read ('*a')
 
     for line in file:lines () do
     end
 
     file:close ()
 
-    -- Write mode has a few caveats:
-    --
-    -- 1. The size must be explicitly stated.  The total amount of written
-    --    data must equal this value.
-    -- 2. The mode is more of a mix of write and append modes.  Existing
-    --    files are truncated, but subsequent writes are forced to the then
-    --    current end of file, regardless of calls to `file:seek ()`.
-    -- 3. Various other functionality is limited or does not function (e.g.
-    --    `file:seek ()` and `file:read ()`).
-    local file = mpq:open ('file.txt', 'w', 1024)
-
-    -- Writing more than the stated size will error.
+    local file = mpq:open ('file.txt', 'w')
     file:write ('text', 'more text', 5, 'and more')
-
-    -- Cannot read from a write mode file.
-    file:read (8) --> nil
 
     -- Get the last written position and total file size.
     file:seek ('cur')
     file:seek ('end')
 
-    -- Any other usage is not supported and will return `nil`.
-    file:seek ('set') --> nil
-    file:seek ('end', -1) --> nil
-
-    -- The total amount of written data must equal the size stated on
-    -- opening the file or this will error.
     file:close ()
 end
 
--- The archive, as well as any open files, will be garbage collected and
--- closed eventually.
---mpq:close ()
+mpq:close ()
 ```
+
+## Core API
+
+The Core API of **lua-stormlib** attempts to mirror [StormLib], down to
+function name and argument order.  Consistency with StormLib is prioritized
+over ease of use within Lua.  Referencing the [StormLib API] and the
+[StormLib.h] should prove quite useful.  However, there are a few
+differences:
+
+- Opened handles are automatically closed and garbage collected. Still, it
+  is recommended to manually manage such tasks.
+- The handling of `NULL` in various situations (e.g. certain strings and
+  function callbacks): In these cases, passing `nil` or omitting the
+  argument will work the same as passing `NULL`.
+- In cases where StormLib returns a pointer, the Core API will simply return
+  a `table`.  Consider this to be a snapshot at that exact moment.
+
+For nearly all functions, if an error is encounted then `nil` will be
+returned, along with a `string` describing the error, and, if applicable, a
+`number` indicating the error code.  For details, please consult the source.
+Here are some examples:
+
+``` lua
+local C = require ('stormlib.core')
+
+local path = '...'
+local archive = C.SFileOpenArchive (path, C.STREAM_FLAG_READ_ONLY)
+
+-- Print a list of all files in the archive.
+do
+    local result, message, code = C.SFileFindFirstFile (archive, '*')
+    local finder, data = result, message
+
+    while result do
+        if data then
+            print (data.cFileName)
+        end
+
+        result, message, code = C.SFileFindNextFile (finder)
+        data = result
+    end
+
+    if finder then
+        C.SFileFindClose (finder)
+    end
+
+    if code ~= C.ERROR_NO_MORE_FILES then
+         error (message)
+    end
+end
+
+-- Read and print the contents of a single file.
+do
+    local name = '...'
+    local file = C.SFileOpenFileEx (archive, name, C.SFILE_OPEN_FROM_MPQ)
+    local size = C.SFileGetFileSize (file)
+    local contents = C.SFileReadFile (file, size)
+    C.SFileCloseFile (file)
+
+    print (contents)
+end
+
+C.SFileCloseArchive (archive)
+```
+
+[Lua]: https://www.lua.org
+[Lua's I/O]: https://www.lua.org/manual/5.4/manual.html#6.8
+[StormLib]: https://github.com/ladislav-zezula/StormLib
+[StormLib API]: http://www.zezula.net/en/mpq/stormlib.html
+[StormLib.h]: https://github.com/ladislav-zezula/StormLib/blob/master/src/StormLib.h
+[Luarocks]: https://luarocks.org
+[LuaJIT]: https://luajit.org

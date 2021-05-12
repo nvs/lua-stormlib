@@ -17,25 +17,60 @@ dependencies = {
 	'lua >= 5.1, < 5.5',
 }
 
+external_dependencies = {
+	platforms = {
+		linux = {
+			STORM = {
+				library = 'storm'
+			}
+		},
+		windows = {
+			STORM = {
+				library = 'stormlib'
+			}
+		}
+	}
+}
+
 build = {
-	type = "builtin",
+	type = 'builtin',
 	modules = {
-		['stormlib'] = {
+		['stormlib'] = 'src/stormlib.lua',
+		['stormlib._archive'] = 'src/_archive.lua',
+		['stormlib._assert'] = 'src/_assert.lua',
+		['stormlib._file'] = 'src/_file.lua',
+		['stormlib.core'] = {
 			sources = {
-				'src/init.c',
-				'src/common.c',
-				'src/file.c',
-				'src/finder.c',
-				'src/handles.c',
-				'src/mpq.c'
-			},
-			libraries = {
-				'storm'
+				'src/stormlib.c'
 			},
 			incdirs = {
 				'lib/compat-5.3/c-api',
-				'lib/stormlib/src'
+				'lib/stormlib/src',
+				'$(STORM_INCDIR)'
+			},
+			libdirs = {
+				'$(STORM_LIBDIR)'
 			}
 		}
-   }
+	},
+	platforms = {
+		linux = {
+			modules = {
+				['stormlib.core'] = {
+					libraries = {
+						'storm'
+					}
+				}
+			}
+		},
+		windows = {
+			modules = {
+				['stormlib.core'] = {
+					libraries = {
+						'stormlib'
+					}
+				}
+			}
+		}
+	}
 }
