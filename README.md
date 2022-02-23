@@ -25,6 +25,9 @@ The easiest (and only supported) way to install **lua-stormlib** is to use
 luarocks install lua-stormlib
 ```
 
+Note that Luarocks does not support static libraries.  As such, pass
+`-DBUILD_SHARED_LIBS=on` to cmake when building StormLib.
+
 ## Usage
 
 There are two ways to utilize this library:
