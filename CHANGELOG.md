@@ -1,7 +1,10 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Changed
+- Introduce two distinct API: Core and Lua.
+    - Core API more closely follows StormLib's design.
+    - Lua API continues to follow Lua's I/O design.
 
 ## [0.2.3] - 2020-12-20
 ### Changed
