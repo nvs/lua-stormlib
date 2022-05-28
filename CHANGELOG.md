@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- N/A
+
+## [0.3.0] - 2022-05-28
 ### Changed
 - Introduce two distinct API: Core and Lua.
     - Core API more closely follows StormLib's design.
@@ -75,7 +78,8 @@
 ## [0.1.0] - 2019-11-07
 - Initial versioned release.
 
-[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/nvs/lua-stormlib/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nvs/lua-stormlib/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/nvs/lua-stormlib/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/nvs/lua-stormlib/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/nvs/lua-stormlib/compare/v0.2.0...v0.2.1
