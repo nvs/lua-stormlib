@@ -66,10 +66,7 @@ function Archive:close ()
 	local archive = to_archive (self)
 
 	for name, files in pairs (self._files) do
-		self._files [name] = nil
-
 		for file in pairs (files) do
-			self._names [file] = nil
 			file:close ()
 		end
 	end

@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-- N/A
+### Fixed
+- Resolve `archive:close ()` error when files are left open.
 
 ## [0.3.0] - 2022-05-28
 ### Changed
